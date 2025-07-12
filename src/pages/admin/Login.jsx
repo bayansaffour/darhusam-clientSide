@@ -11,6 +11,8 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const backendURL = import.meta.env.VITE_BACKEND_URL;
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -25,7 +27,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/admin/login`,
+        `${backendURL}/api/admin/login`,
         formData
       );
       localStorage.setItem('adminToken', response.data.token);

@@ -1,5 +1,3 @@
-
-
 import React, { useState } from "react";
 
 const BookingForm = ({ hall, bookedTimes, selectedDate, onBookingSuccess }) => {
@@ -13,6 +11,8 @@ const BookingForm = ({ hall, bookedTimes, selectedDate, onBookingSuccess }) => {
   });
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,7 +28,7 @@ const BookingForm = ({ hall, bookedTimes, selectedDate, onBookingSuccess }) => {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/bookings", {
+      const response = await fetch(`${API_BASE_URL}/api/bookings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -112,7 +112,7 @@ const BookingForm = ({ hall, bookedTimes, selectedDate, onBookingSuccess }) => {
               value={formData.phone}
               onChange={handleChange}
               required
-              className="w-full p-3 border border-gray-300 poussi-md focus:outline-none focus:ring-2 focus:ring-[#780C28]"
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#780C28]"
               placeholder="أدخل رقم الهاتف"
             />
           </div>

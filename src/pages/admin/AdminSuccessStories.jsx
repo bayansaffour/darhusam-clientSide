@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 const AdminSuccessStories = () => {
-  const backendURL = process.env.REACT_APP_BACKEND_URL;
+  const backendURL = import.meta.env.VITE_BACKEND_URL;
 
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -168,11 +168,121 @@ const AdminSuccessStories = () => {
     }
   };
 
-  // الباقي من الكود نفس تصميم واجهة المستخدم لديك ولا يحتاج لتعديل
-
   return (
-    <div>
-      {/* ... واجهة المستخدم كما في كودك السابق بدون تغيير ... */}
+    <div className="min-h-screen p-6 bg-gray-50" dir="rtl">
+      <div className="max-w-4xl mx-auto">
+        <h2 className="text-2xl font-bold mb-4 text-[#780C28]">قصص النجاح</h2>
+        {error && (
+          <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>
+        )}
+
+        {viewMode ? (
+          <div>
+            <button
+              onClick={() => {
+                setViewMode(false);
+                setEditingStory(null);
+                setFormData({ name: "", imageUrl: "", shortStory: "" });
+                setImageFile(null);
+              }}
+              className="mb-4 px-4 py-2 bg-[#780C28] text-white rounded hover:bg-[#600a21]"
+            >
+              إضافة قصة جديدة
+            </button>
+
+            <div className="grid gap-4">
+              {loading ? (
+                <p>جاري التحميل...</p>
+              ) : (
+                stories.map((story) => (
+                  <div key={story._id} className="bg-white p-4 rounded shadow">
+                    <img
+                      src={story.imageUrl}
+                      alt={story.name}
+                      className="w-full h-48 object-cover rounded mb-2"
+                    />
+                    <h3 className="text-xl font-semibold">{story.name}</h3>
+                    <p className="text-gray-600">{story.shortStory}</p>
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        onClick={() => handleEdit(story)}
+                        className="text-blue-600 hover:underline"
+                      >
+                        تعديل
+                      </button>
+                      <button
+                        onClick={() => handleSoftDelete(story._id)}
+                        className="text-yellow-600 hover:underline"
+                      >
+                        أرشفة
+                      </button>
+                      <button
+                        onClick={() => handleDelete(story._id)}
+                        className="text-red-600 hover:underline"
+                      >
+                        حذف نهائي
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow space-y-4">
+            <h3 className="text-lg font-semibold text-[#780C28]">بيانات القصة</h3>
+            <input
+              type="text"
+              name="name"
+              placeholder="اسم صاحب القصة"
+              value={formData.name}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+            <textarea
+              name="shortStory"
+              placeholder="ملخص القصة"
+              value={formData.shortStory}
+              onChange={handleInputChange}
+              className="w-full p-2 border rounded"
+              required
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="w-full p-2 border rounded"
+            />
+            {formData.imageUrl && (
+              <img
+                src={formData.imageUrl}
+                alt="معاينة"
+                className="w-full h-48 object-cover rounded mt-2"
+              />
+            )}
+            <div className="flex justify-between mt-4">
+              <button
+                type="submit"
+                disabled={uploading}
+                className="px-4 py-2 bg-[#780C28] text-white rounded hover:bg-[#600a21]"
+              >
+                {uploading ? "جارٍ الحفظ..." : editingStory ? "تحديث القصة" : "إضافة القصة"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setViewMode(true);
+                  setEditingStory(null);
+                }}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              >
+                إلغاء
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   );
 };

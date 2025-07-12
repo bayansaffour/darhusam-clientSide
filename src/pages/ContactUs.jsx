@@ -14,11 +14,14 @@ const ContactUs = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [error, setError] = useState('');
 
+  // استخدام متغير البيئة الخاص بـ Vite
+  const backendURL = import.meta.env.VITE_BACKEND_URL;
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [e.target.name]: e.target.value
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -28,8 +31,8 @@ const ContactUs = () => {
     setSubmitSuccess(false);
 
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/contact/submit`,
+      await axios.post(
+        `${backendURL}/api/contact/submit`,
         formData
       );
       setSubmitSuccess(true);
@@ -50,14 +53,14 @@ const ContactUs = () => {
     <div className="min-h-screen bg-gray-50 py-12" dir="rtl">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
-          {/* Page Header */}
+          {/* عنوان الصفحة */}
           <div className="text-center mb-12">
             <h1 className="text-3xl font-bold text-[#780C28] mb-4">اتصل بنا</h1>
             <p className="text-gray-600">نحن هنا للإجابة على استفساراتكم</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Contact Information */}
+            {/* معلومات الاتصال */}
             <div className="bg-white rounded-lg shadow-md p-8">
               <h2 className="text-xl font-bold text-[#780C28] mb-6">معلومات الاتصال</h2>
               
@@ -93,7 +96,7 @@ const ContactUs = () => {
                 </div>
               </div>
 
-              {/* Google Maps */}
+              {/* خرائط جوجل */}
               <div className="mt-8">
                 <h3 className="font-medium text-gray-800 mb-4">موقعنا على الخريطة</h3>
                 <div className="h-64 rounded-lg overflow-hidden">
@@ -110,7 +113,7 @@ const ContactUs = () => {
               </div>
             </div>
 
-            {/* Contact Form */}
+            {/* نموذج الاتصال */}
             <div className="bg-white rounded-lg shadow-md p-8">
               <h2 className="text-xl font-bold text-[#780C28] mb-6">نموذج تواصل مباشر</h2>
 

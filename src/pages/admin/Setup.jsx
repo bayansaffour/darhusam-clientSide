@@ -12,6 +12,8 @@ const Setup = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  const backendURL = import.meta.env.VITE_BACKEND_URL;
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -32,7 +34,7 @@ const Setup = () => {
 
     try {
       await axios.post(
-        `${process.env.REACT_APP_BACKEND_URL}/api/admin/setup`,
+        `${backendURL}/api/admin/setup`,
         {
           username: formData.username,
           password: formData.password
