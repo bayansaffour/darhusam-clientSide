@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 import {
   Users,
   MessageSquare,
@@ -55,47 +53,69 @@ const Dashboard = () => {
     images: [],
     externalUrl: "",
   });
+
+    const API_URL = import.meta.env.VITE_BACKEND_URL;
+
   const [resources, setResources] = useState([]);
   const navigate = useNavigate();
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useState, useEffect } from "react";
+
+const Dashboard = () => {
+  const navigate = useNavigate();
+  const [stats, setStats] = useState(null);
+  const [resources, setResources] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState("statistics");
 
   useEffect(() => {
     fetchDashboardData();
   }, []);
 
   useEffect(() => {
-  if (activeTab === "resources") {
-    axios
-      .get(`${BASE_URL}/api/resources`)
-      .then((res) => setResources(res.data.data))
-      .catch(() => setResources([]));
-  }
-}, [activeTab]);
-
-const fetchDashboardData = async () => {
-  try {
-    const token = localStorage.getItem("adminToken");
-    if (!token) {
-      navigate("/admin/login");
-      return;
+    if (activeTab === "resources") {
+      fetchResources();
     }
+  }, [activeTab]);
 
-    const response = await axios.get(
-      `${BASE_URL}/api/admin/dashboard`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
+  const fetchDashboardData = async () => {
+    try {
+      const token = localStorage.getItem("adminToken");
+      if (!token) {
+        navigate("/admin/login");
+        return;
       }
-    );
 
-    setStats(response.data.data);
-  } catch (error) {
-    setError(error.response?.data?.message || "حدث خطأ أثناء جلب البيانات");
-    if (error.response?.status === 401) {
-      navigate("/admin/login");
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/admin/dashboard`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setStats(response.data.data);
+    } catch (error) {
+      setError(error.response?.data?.message || "حدث خطأ أثناء جلب البيانات");
+      if (error.response?.status === 401) {
+        navigate("/admin/login");
+      }
+    } finally {
+      setLoading(false);
     }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
+  const fetchResources = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}/api/resources`
+      );
+      setResources(response.data.data || []);
+    } catch (error) {
+      setResources([]);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
@@ -117,138 +137,126 @@ const fetchDashboardData = async () => {
   ];
 
   const handleAddResource = async (e) => {
-    e.preventDefault();
-    try {
-      const formData = new FormData();
-      formData.append("title", newResource.title);
-      formData.append("description", newResource.description);
-      formData.append("category", newResource.category);
-
-      // منطق رفع الملفات حسب التصنيف
-      if (newResource.category === 'articles') {
-        if (!newResource.images || newResource.images.length === 0) {
-          Swal.fire({
-            title: "خطأ!",
-            text: "يرجى تحميل صورة واحدة على الأقل للمقالة",
-            icon: "error",
-            confirmButtonText: "حسناً",
-            confirmButtonColor: "#780C28",
-          });
-          return;
-        }
-        newResource.images.forEach((image) => {
-          formData.append("images", image);
-        });
-      } else {
-        // فيديو/عرض/PDF: ملف أو رابط
-        if (newResource.file) {
-          formData.append("images", newResource.file); // نستخدم نفس الحقل في الباك
-        } else if (newResource.externalUrl) {
-          formData.append("externalUrl", newResource.externalUrl);
-        } else {
-          Swal.fire({
-            title: "خطأ!",
-            text: "يرجى رفع ملف أو إدخال رابط خارجي",
-            icon: "error",
-            confirmButtonText: "حسناً",
-            confirmButtonColor: "#780C28",
-          });
-          return;
-        }
-      }
-const response = await axios.post(
-  `${BASE_URL}/api/resources`,
-  formData,
-  {
-    headers: {
-      "Content-Type": "multipart/form-data",
-      Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-    },
-  }
-);
-
-if (response.data.success) {
-  Swal.fire({
-    title: "تمت الإضافة بنجاح!",
-    text: "تم إضافة المورد بنجاح إلى المكتبة",
-    icon: "success",
-    confirmButtonText: "حسناً",
-    confirmButtonColor: "#780C28",
-  });
-  setNewResource({
-    title: "",
-    description: "",
-    category: "articles",
-    images: [],
-    file: null,
-    externalUrl: "",
-  });
-  setShowAddResourceModal(false);
-  // Refresh resources list
-  const resourcesResponse = await axios.get(`${BASE_URL}/api/resources`);
-  setResources(resourcesResponse.data.data || []);
-}
-
-  const handleDeleteResource = async (resourceId) => {
-    try {
-      const result = await Swal.fire({
-        title: "هل أنت متأكد؟",
-        text: "لا يمكن التراجع عن حذف المورد",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#780C28",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "نعم، احذف",
-        cancelButtonText: "إلغاء",
-      });
-
-      if (result.isConfirmed) {
-        const response = await axios.delete(
-          `http://localhost:5000/api/resources/${resourceId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-            },
-          }
-        );
-
-      // دالة حذف مورد
-const handleDeleteResource = async (resourceId) => {
+  e.preventDefault();
   try {
-    const token = localStorage.getItem("adminToken");
-    if (!token) {
-      Swal.fire({
-        title: "خطأ!",
-        text: "يرجى تسجيل الدخول مرة أخرى",
-        icon: "error",
-        confirmButtonColor: "#780C28",
+    const formData = new FormData();
+    formData.append("title", newResource.title);
+    formData.append("description", newResource.description);
+    formData.append("category", newResource.category);
+
+    // منطق رفع الملفات حسب التصنيف
+    if (newResource.category === 'articles') {
+      if (!newResource.images || newResource.images.length === 0) {
+        Swal.fire({
+          title: "خطأ!",
+          text: "يرجى تحميل صورة واحدة على الأقل للمقالة",
+          icon: "error",
+          confirmButtonText: "حسناً",
+          confirmButtonColor: "#780C28",
+        });
+        return;
+      }
+      newResource.images.forEach((image) => {
+        formData.append("images", image);
       });
-      navigate("/admin/login");
-      return;
+    } else {
+      // فيديو/عرض/PDF: ملف أو رابط
+      if (newResource.file) {
+        formData.append("images", newResource.file); // نستخدم نفس الحقل في الباك
+      } else if (newResource.externalUrl) {
+        formData.append("externalUrl", newResource.externalUrl);
+      } else {
+        Swal.fire({
+          title: "خطأ!",
+          text: "يرجى رفع ملف أو إدخال رابط خارجي",
+          icon: "error",
+          confirmButtonText: "حسناً",
+          confirmButtonColor: "#780C28",
+        });
+        return;
+      }
     }
 
-    const response = await axios.delete(
-      `${BASE_URL}/api/resources/${resourceId}`,
+    const response = await axios.post(
+      `${process.env.REACT_APP_BACKEND_URL}/api/resources`,
+      formData,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
         },
       }
     );
 
     if (response.data.success) {
       Swal.fire({
-        title: "تم الحذف!",
-        text: "تم حذف المورد بنجاح",
+        title: "تمت الإضافة بنجاح!",
+        text: "تم إضافة المورد بنجاح إلى المكتبة",
         icon: "success",
+        confirmButtonText: "حسناً",
         confirmButtonColor: "#780C28",
       });
-      // تحديث قائمة الموارد بعد الحذف
-      axios
-        .get(`${BASE_URL}/api/resources`)
-        .then((res) => setResources(res.data.data))
-        .catch(() => setResources([]));
+      setNewResource({
+        title: "",
+        description: "",
+        category: "articles",
+        images: [],
+        file: null,
+        externalUrl: "",
+      });
+      setShowAddResourceModal(false);
+
+      // تحديث قائمة الموارد بعد الإضافة
+      const resourcesResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/resources`);
+      setResources(resourcesResponse.data.data || []);
+    }
+  } catch (error) {
+    console.error("Error adding resource:", error);
+    Swal.fire({
+      title: "خطأ!",
+      text: error.response?.data?.message || "حدث خطأ أثناء إضافة المورد",
+      icon: "error",
+      confirmButtonText: "حسناً",
+      confirmButtonColor: "#780C28",
+    });
+  }
+};
+
+
+ const handleDeleteResource = async (resourceId) => {
+  try {
+    const result = await Swal.fire({
+      title: "هل أنت متأكد؟",
+      text: "لا يمكن التراجع عن حذف المورد",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#780C28",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "نعم، احذف",
+      cancelButtonText: "إلغاء",
+    });
+
+    if (result.isConfirmed) {
+      const response = await axios.delete(
+        `${process.env.REACT_APP_BACKEND_URL}/api/resources/${resourceId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        Swal.fire({
+          title: "تم الحذف!",
+          text: "تم حذف المورد بنجاح",
+          icon: "success",
+          confirmButtonColor: "#780C28",
+        });
+        // تحديث قائمة الموارد بعد الحذف
+        const resourcesResponse = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/resources`);
+        setResources(resourcesResponse.data.data || []);
+      }
     }
   } catch (error) {
     console.error("Error deleting resource:", error);
@@ -261,8 +269,7 @@ const handleDeleteResource = async (resourceId) => {
   }
 };
 
-// دالة حذف رسالة تواصل
-const handleDeleteContact = async (contactId) => {
+ const handleDeleteContact = async (contactId) => {
   try {
     const token = localStorage.getItem("adminToken");
     if (!token) {
@@ -278,7 +285,7 @@ const handleDeleteContact = async (contactId) => {
 
     console.log("Attempting to delete contact:", contactId);
     const response = await axios.delete(
-      `${BASE_URL}/api/contact/${contactId}`,
+      `${process.env.REACT_APP_BACKEND_URL}/api/contact/${contactId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -317,30 +324,30 @@ const handleDeleteContact = async (contactId) => {
   }
 };
 
-// دالة البحث في البيانات
-const filterData = (data, query) => {
-  if (!query) return data;
-  query = query.toLowerCase();
 
-  return data.filter((item) => {
-    // البحث في جميع الحقول النصية
-    return Object.values(item).some((value) => {
-      if (typeof value === "string") {
-        return value.toLowerCase().includes(query);
-      }
-      return false;
+  // دالة البحث في البيانات
+  const filterData = (data, query) => {
+    if (!query) return data;
+    query = query.toLowerCase();
+
+    return data.filter((item) => {
+      // البحث في جميع الحقول النصية
+      return Object.values(item).some((value) => {
+        if (typeof value === "string") {
+          return value.toLowerCase().includes(query);
+        }
+        return false;
+      });
     });
-  });
-};
+  };
 
-// عرض حالة التحميل
-if (loading) {
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-[#780C28] text-xl">جاري التحميل...</div>
-    </div>
-  );
-}
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-[#780C28] text-xl">جاري التحميل...</div>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -724,68 +731,67 @@ if (loading) {
                                   >
                                     عرض
                                   </button>
-                                  <button
-                                    onClick={async () => {
-                                      try {
-                                        const result = await Swal.fire({
-                                          title: "هل أنت متأكد؟",
-                                          text: "لا يمكن التراجع عن حذف المتطوع",
-                                          icon: "warning",
-                                          showCancelButton: true,
-                                          confirmButtonColor: "#780C28",
-                                          cancelButtonColor: "#d33",
-                                          confirmButtonText: "نعم، احذف",
-                                          cancelButtonText: "إلغاء",
-                                        });
+                                <button
+  onClick={async () => {
+    try {
+      const result = await Swal.fire({
+        title: "هل أنت متأكد؟",
+        text: "لا يمكن التراجع عن حذف المتطوع",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#780C28",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "نعم، احذف",
+        cancelButtonText: "إلغاء",
+      });
 
-                                        if (result.isConfirmed) {
-                                          const response = await axios.delete(
-                                            `http://localhost:5000/api/volunteer/${volunteer._id}`,
-                                            {
-                                              headers: {
-                                                Authorization: `Bearer ${localStorage.getItem(
-                                                  "adminToken"
-                                                )}`,
-                                              },
-                                            }
-                                          );
-                                          if (response.data.success) {
-                                            await fetchDashboardData();
-                                            Swal.fire({
-                                              title: "تم الحذف!",
-                                              text: "تم حذف المتطوع بنجاح",
-                                              icon: "success",
-                                              confirmButtonColor: "#780C28",
-                                            });
-                                          }
-                                        }
-                                      } catch (error) {
-                                        Swal.fire({
-                                          title: "خطأ!",
-                                          text:
-                                            error.response?.data?.message ||
-                                            "حدث خطأ أثناء حذف المتطوع",
-                                          icon: "error",
-                                          confirmButtonColor: "#780C28",
-                                        });
-                                      }
-                                    }}
-                                    className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1"
-                                  >
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      className="h-4 w-4"
-                                      viewBox="0 0 20 20"
-                                      fill="currentColor"
-                                    >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                        clipRule="evenodd"
-                                      />
-                                    </svg>
-                                    حذف
-                                  </button>
+      if (result.isConfirmed) {
+        const response = await axios.delete(
+          `${process.env.REACT_APP_BACKEND_URL}/api/volunteer/${volunteer._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            },
+          }
+        );
+        if (response.data.success) {
+          await fetchDashboardData();
+          Swal.fire({
+            title: "تم الحذف!",
+            text: "تم حذف المتطوع بنجاح",
+            icon: "success",
+            confirmButtonColor: "#780C28",
+          });
+        }
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "خطأ!",
+        text:
+          error.response?.data?.message ||
+          "حدث خطأ أثناء حذف المتطوع",
+        icon: "error",
+        confirmButtonColor: "#780C28",
+      });
+    }
+  }}
+  className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+      clipRule="evenodd"
+    />
+  </svg>
+  حذف
+</button>
+
                                 </div>
                               </td>
                             </tr>
@@ -933,68 +939,67 @@ if (loading) {
                                   >
                                     عرض
                                   </button>
-                                  <button
-                                    onClick={async () => {
-                                      try {
-                                        const result = await Swal.fire({
-                                          title: "هل أنت متأكد؟",
-                                          text: "لا يمكن التراجع عن حذف المدرب",
-                                          icon: "warning",
-                                          showCancelButton: true,
-                                          confirmButtonColor: "#780C28",
-                                          cancelButtonColor: "#d33",
-                                          confirmButtonText: "نعم، احذف",
-                                          cancelButtonText: "إلغاء",
-                                        });
+                                const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
-                                        if (result.isConfirmed) {
-                                          const response = await axios.delete(
-                                            `http://localhost:5000/api/trainer/${trainer._id}`,
-                                            {
-                                              headers: {
-                                                Authorization: `Bearer ${localStorage.getItem(
-                                                  "adminToken"
-                                                )}`,
-                                              },
-                                            }
-                                          );
-                                          if (response.data.success) {
-                                            await fetchDashboardData();
-                                            Swal.fire({
-                                              title: "تم الحذف!",
-                                              text: "تم حذف المدرب بنجاح",
-                                              icon: "success",
-                                              confirmButtonColor: "#780C28",
-                                            });
-                                          }
-                                        }
-                                      } catch (error) {
-                                        Swal.fire({
-                                          title: "خطأ!",
-                                          text:
-                                            error.response?.data?.message ||
-                                            "حدث خطأ أثناء حذف المدرب",
-                                          icon: "error",
-                                          confirmButtonColor: "#780C28",
-                                        });
-                                      }
-                                    }}
-                                    className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1"
-                                  >
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      className="h-4 w-4"
-                                      viewBox="0 0 20 20"
-                                      fill="currentColor"
-                                    >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                        clipRule="evenodd"
-                                      />
-                                    </svg>
-                                    حذف
-                                  </button>
+<button
+  onClick={async () => {
+    try {
+      const result = await Swal.fire({
+        title: "هل أنت متأكد؟",
+        text: "لا يمكن التراجع عن حذف المدرب",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#780C28",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "نعم، احذف",
+        cancelButtonText: "إلغاء",
+      });
+
+      if (result.isConfirmed) {
+        const response = await axios.delete(
+          `${backendUrl}/api/trainer/${trainer._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            },
+          }
+        );
+        if (response.data.success) {
+          await fetchDashboardData();
+          Swal.fire({
+            title: "تم الحذف!",
+            text: "تم حذف المدرب بنجاح",
+            icon: "success",
+            confirmButtonColor: "#780C28",
+          });
+        }
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "خطأ!",
+        text: error.response?.data?.message || "حدث خطأ أثناء حذف المدرب",
+        icon: "error",
+        confirmButtonColor: "#780C28",
+      });
+    }
+  }}
+  className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+      clipRule="evenodd"
+    />
+  </svg>
+  حذف
+</button>
+
                                 </div>
                               </td>
                             </tr>
@@ -1150,68 +1155,68 @@ if (loading) {
                                   >
                                     عرض
                                   </button>
-                                  <button
-                                    onClick={async () => {
-                                      try {
-                                        const result = await Swal.fire({
-                                          title: "هل أنت متأكد؟",
-                                          text: "لا يمكن التراجع عن حذف المتدرب",
-                                          icon: "warning",
-                                          showCancelButton: true,
-                                          confirmButtonColor: "#780C28",
-                                          cancelButtonColor: "#d33",
-                                          confirmButtonText: "نعم، احذف",
-                                          cancelButtonText: "إلغاء",
-                                        });
+                                 const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
-                                        if (result.isConfirmed) {
-                                          const response = await axios.delete(
-                                            `http://localhost:5000/api/trainee/${trainee._id}`,
-                                            {
-                                              headers: {
-                                                Authorization: `Bearer ${localStorage.getItem(
-                                                  "adminToken"
-                                                )}`,
-                                              },
-                                            }
-                                          );
-                                          if (response.data.success) {
-                                            await fetchDashboardData();
-                                            Swal.fire({
-                                              title: "تم الحذف!",
-                                              text: "تم حذف المتدرب بنجاح",
-                                              icon: "success",
-                                              confirmButtonColor: "#780C28",
-                                            });
-                                          }
-                                        }
-                                      } catch (error) {
-                                        Swal.fire({
-                                          title: "خطأ!",
-                                          text:
-                                            error.response?.data?.message ||
-                                            "حدث خطأ أثناء حذف المتدرب",
-                                          icon: "error",
-                                          confirmButtonColor: "#780C28",
-                                        });
-                                      }
-                                    }}
-                                    className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1"
-                                  >
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      className="h-4 w-4"
-                                      viewBox="0 0 20 20"
-                                      fill="currentColor"
-                                    >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                        clipRule="evenodd"
-                                      />
-                                    </svg>
-                                    حذف
-                                  </button>
+<button
+  onClick={async () => {
+    try {
+      const result = await Swal.fire({
+        title: "هل أنت متأكد؟",
+        text: "لا يمكن التراجع عن حذف المتدرب",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#780C28",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "نعم، احذف",
+        cancelButtonText: "إلغاء",
+      });
+
+      if (result.isConfirmed) {
+        const response = await axios.delete(
+          `${backendUrl}/api/trainee/${trainee._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            },
+          }
+        );
+
+        if (response.data.success) {
+          await fetchDashboardData();
+          Swal.fire({
+            title: "تم الحذف!",
+            text: "تم حذف المتدرب بنجاح",
+            icon: "success",
+            confirmButtonColor: "#780C28",
+          });
+        }
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "خطأ!",
+        text: error.response?.data?.message || "حدث خطأ أثناء حذف المتدرب",
+        icon: "error",
+        confirmButtonColor: "#780C28",
+      });
+    }
+  }}
+  className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+      clipRule="evenodd"
+    />
+  </svg>
+  حذف
+</button>
+
                                 </div>
                               </td>
                             </tr>
@@ -1357,68 +1362,68 @@ if (loading) {
                                   >
                                     عرض
                                   </button>
-                                  <button
-                                    onClick={async () => {
-                                      try {
-                                        const result = await Swal.fire({
-                                          title: "هل أنت متأكد؟",
-                                          text: "لا يمكن التراجع عن حذف الشريك",
-                                          icon: "warning",
-                                          showCancelButton: true,
-                                          confirmButtonColor: "#780C28",
-                                          cancelButtonColor: "#d33",
-                                          confirmButtonText: "نعم، احذف",
-                                          cancelButtonText: "إلغاء",
-                                        });
+                                const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
-                                        if (result.isConfirmed) {
-                                          const response = await axios.delete(
-                                            `http://localhost:5000/api/partner/${partner._id}`,
-                                            {
-                                              headers: {
-                                                Authorization: `Bearer ${localStorage.getItem(
-                                                  "adminToken"
-                                                )}`,
-                                              },
-                                            }
-                                          );
-                                          if (response.data.success) {
-                                            await fetchDashboardData();
-                                            Swal.fire({
-                                              title: "تم الحذف!",
-                                              text: "تم حذف الشريك بنجاح",
-                                              icon: "success",
-                                              confirmButtonColor: "#780C28",
-                                            });
-                                          }
-                                        }
-                                      } catch (error) {
-                                        Swal.fire({
-                                          title: "خطأ!",
-                                          text:
-                                            error.response?.data?.message ||
-                                            "حدث خطأ أثناء حذف الشريك",
-                                          icon: "error",
-                                          confirmButtonColor: "#780C28",
-                                        });
-                                      }
-                                    }}
-                                    className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1"
-                                  >
-                                    <svg
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      className="h-4 w-4"
-                                      viewBox="0 0 20 20"
-                                      fill="currentColor"
-                                    >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                        clipRule="evenodd"
-                                      />
-                                    </svg>
-                                    حذف
-                                  </button>
+<button
+  onClick={async () => {
+    try {
+      const result = await Swal.fire({
+        title: "هل أنت متأكد؟",
+        text: "لا يمكن التراجع عن حذف الشريك",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#780C28",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "نعم، احذف",
+        cancelButtonText: "إلغاء",
+      });
+
+      if (result.isConfirmed) {
+        const response = await axios.delete(
+          `${backendUrl}/api/partner/${partner._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            },
+          }
+        );
+
+        if (response.data.success) {
+          await fetchDashboardData();
+          Swal.fire({
+            title: "تم الحذف!",
+            text: "تم حذف الشريك بنجاح",
+            icon: "success",
+            confirmButtonColor: "#780C28",
+          });
+        }
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "خطأ!",
+        text: error.response?.data?.message || "حدث خطأ أثناء حذف الشريك",
+        icon: "error",
+        confirmButtonColor: "#780C28",
+      });
+    }
+  }}
+  className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+      clipRule="evenodd"
+    />
+  </svg>
+  حذف
+</button>
+
                                 </div>
                               </td>
                             </tr>
@@ -1549,68 +1554,67 @@ if (loading) {
                                 >
                                   عرض
                                 </button>
-                                <button
-                                  onClick={async () => {
-                                    try {
-                                      const result = await Swal.fire({
-                                        title: "هل أنت متأكد؟",
-                                        text: "لا يمكن التراجع عن حذف الشريك",
-                                        icon: "warning",
-                                        showCancelButton: true,
-                                        confirmButtonColor: "#780C28",
-                                        cancelButtonColor: "#d33",
-                                        confirmButtonText: "نعم، احذف",
-                                        cancelButtonText: "إلغاء",
-                                      });
+                               const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
-                                      if (result.isConfirmed) {
-                                        const response = await axios.delete(
-                                          `http://localhost:5000/api/individual-partner/${partner._id}`,
-                                          {
-                                            headers: {
-                                              Authorization: `Bearer ${localStorage.getItem(
-                                                "adminToken"
-                                              )}`,
-                                            },
-                                          }
-                                        );
-                                        if (response.data.success) {
-                                          await fetchDashboardData();
-                                          Swal.fire({
-                                            title: "تم الحذف!",
-                                            text: "تم حذف الشريك بنجاح",
-                                            icon: "success",
-                                            confirmButtonColor: "#780C28",
-                                          });
-                                        }
-                                      }
-                                    } catch (error) {
-                                      Swal.fire({
-                                        title: "خطأ!",
-                                        text:
-                                          error.response?.data?.message ||
-                                          "حدث خطأ أثناء حذف الشريك",
-                                        icon: "error",
-                                        confirmButtonColor: "#780C28",
-                                      });
-                                    }
-                                  }}
-                                  className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1"
-                                >
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                  حذف
-                                </button>
+<button
+  onClick={async () => {
+    try {
+      const result = await Swal.fire({
+        title: "هل أنت متأكد؟",
+        text: "لا يمكن التراجع عن حذف الشريك",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#780C28",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "نعم، احذف",
+        cancelButtonText: "إلغاء",
+      });
+
+      if (result.isConfirmed) {
+        const response = await axios.delete(
+          `${backendUrl}/api/individual-partner/${partner._id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            },
+          }
+        );
+        if (response.data.success) {
+          await fetchDashboardData();
+          Swal.fire({
+            title: "تم الحذف!",
+            text: "تم حذف الشريك بنجاح",
+            icon: "success",
+            confirmButtonColor: "#780C28",
+          });
+        }
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "خطأ!",
+        text: error.response?.data?.message || "حدث خطأ أثناء حذف الشريك",
+        icon: "error",
+        confirmButtonColor: "#780C28",
+      });
+    }
+  }}
+  className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-4 w-4"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+  >
+    <path
+      fillRule="evenodd"
+      d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+      clipRule="evenodd"
+    />
+  </svg>
+  حذف
+</button>
+
                               </div>
                             </td>
                           </tr>
