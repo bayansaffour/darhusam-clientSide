@@ -15,6 +15,9 @@ const Register = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // قاعدة API من متغير البيئة (Vite)
+  const apiBaseUrl = import.meta.env.VITE_BACKEND_URL;
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -34,12 +37,12 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
+      const response = await axios.post(`${apiBaseUrl}/api/auth/register`, {
         username: formData.username,
         email: formData.email,
         password: formData.password
       });
-      
+
       login(response.data.user, response.data.token);
       navigate('/');
     } catch (error) {
@@ -185,4 +188,4 @@ const Register = () => {
   );
 };
 
-export default Register; 
+export default Register;

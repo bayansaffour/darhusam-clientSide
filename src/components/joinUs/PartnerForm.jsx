@@ -85,25 +85,24 @@ const PartnerForm = () => {
     
     if (name.includes(".")) {
       const [parent, child] = name.split(".");
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         [parent]: {
-          ...formData[parent],
+          ...prev[parent],
           [child]: type === "checkbox" ? checked : value,
         },
-      });
+      }));
+      if (formErrors[name]) {
+        setFormErrors((prev) => ({ ...prev, [name]: "" }));
+      }
     } else {
-      setFormData({
-        ...formData,
+      setFormData((prev) => ({
+        ...prev,
         [name]: type === "checkbox" ? checked : value,
-      });
-    }
-
-    if (formErrors[name]) {
-      setFormErrors({
-        ...formErrors,
-        [name]: "",
-      });
+      }));
+      if (formErrors[name]) {
+        setFormErrors((prev) => ({ ...prev, [name]: "" }));
+      }
     }
   };
 
@@ -111,18 +110,18 @@ const PartnerForm = () => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 2 * 1024 * 1024) {
-        setFormErrors({
-          ...formErrors,
+        setFormErrors((prev) => ({
+          ...prev,
           licenseImage: "حجم الصورة يجب أن لا يتجاوز 2 ميجابايت"
-        });
+        }));
         return;
       }
 
       if (!file.type.startsWith('image/')) {
-        setFormErrors({
-          ...formErrors,
+        setFormErrors((prev) => ({
+          ...prev,
           licenseImage: "يرجى اختيار ملف صورة صالح"
-        });
+        }));
         return;
       }
 
@@ -156,16 +155,16 @@ const PartnerForm = () => {
 
           const compressedImage = canvas.toDataURL('image/jpeg', 0.7);
           
-          setFormData({
-            ...formData,
+          setFormData((prev) => ({
+            ...prev,
             licenseImage: compressedImage,
-          });
+          }));
           
           if (formErrors.licenseImage) {
-            setFormErrors({
-              ...formErrors,
+            setFormErrors((prev) => ({
+              ...prev,
               licenseImage: "",
-            });
+            }));
           }
         };
       };
@@ -198,7 +197,8 @@ const PartnerForm = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/partner/submit", {
+      const baseURL = import.meta.env.VITE_BACKEND_URL;
+      const response = await axios.post(`${baseURL}/api/partner/submit`, {
         ...formData,
         organizationName: formData.organizationName.trim(),
         organizationLocation: formData.organizationLocation.trim(),
@@ -319,7 +319,7 @@ const PartnerForm = () => {
           <div className="p-8">
             {renderStepIndicator()}
 
-            <form onSubmit={handleSubmit} dir="rtl">
+            <form onSubmit={handleSubmit} dir="rtl" noValidate>
               {currentStep === 1 && (
                 <div className="space-y-6">
                   <div>
@@ -516,7 +516,7 @@ const PartnerForm = () => {
                           value={formData.liaison.name}
                           onChange={handleChange}
                           className={getInputClass("liaison.name")}
-                          placeholder="اسم الشخص المسؤول عن التواصل"
+                          placeholder="اسم مسؤول التواصل"
                         />
                         {formErrors["liaison.name"] && (
                           <p className="text-red-500 text-sm mt-1">{formErrors["liaison.name"]}</p>
@@ -565,119 +565,113 @@ const PartnerForm = () => {
 
               {currentStep === 3 && (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-[#780C28] font-medium mb-2">
-                        نوع الشراكة <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        name="partnershipType"
-                        value={formData.partnershipType}
-                        onChange={handleChange}
-                        className={getInputClass("partnershipType")}
-                      >
-                        <option value="">اختر نوع الشراكة</option>
-                        <option value="استراتيجية">شراكة استراتيجية</option>
-                        <option value="تمويلية">شراكة تمويلية</option>
-                        <option value="تطوعية">شراكة تطوعية</option>
-                        <option value="تدريبية">شراكة تدريبية</option>
-                        <option value="إعلامية">شراكة إعلامية</option>
-                        <option value="أخرى">أخرى</option>
-                      </select>
-                      {formErrors.partnershipType && (
-                        <p className="text-red-500 text-sm mt-1">{formErrors.partnershipType}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-[#780C28] font-medium mb-2">
-                        مدة الشراكة المتوقعة <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        name="duration"
-                        value={formData.duration}
-                        onChange={handleChange}
-                        className={getInputClass("duration")}
-                      >
-                        <option value="">اختر المدة المتوقعة</option>
-                        <option value="3 أشهر">3 أشهر</option>
-                        <option value="6 أشهر">6 أشهر</option>
-                        <option value="سنة">سنة</option>
-                        <option value="سنتين">سنتين</option>
-                        <option value="أكثر من سنتين">أكثر من سنتين</option>
-                      </select>
-                      {formErrors.duration && (
-                        <p className="text-red-500 text-sm mt-1">{formErrors.duration}</p>
-                      )}
-                    </div>
+                  <div>
+                    <label className="block text-[#780C28] font-medium mb-2">
+                      نوع الشراكة <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      name="partnershipType"
+                      value={formData.partnershipType}
+                      onChange={handleChange}
+                      className={getInputClass("partnershipType")}
+                    >
+                      <option value="">اختر نوع الشراكة</option>
+                      <option value="تمويل">تمويل</option>
+                      <option value="تدريب">تدريب</option>
+                      <option value="استشارات">استشارات</option>
+                      <option value="تسويق">تسويق</option>
+                      <option value="شراكة استراتيجية">شراكة استراتيجية</option>
+                    </select>
+                    {formErrors.partnershipType && (
+                      <p className="text-red-500 text-sm mt-1">{formErrors.partnershipType}</p>
+                    )}
                   </div>
 
                   <div>
                     <label className="block text-[#780C28] font-medium mb-2">
-                      ماذا تتوقع من الشراكة؟
+                      مدة الشراكة <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="duration"
+                      value={formData.duration}
+                      onChange={handleChange}
+                      className={getInputClass("duration")}
+                      placeholder="مثلاً: سنة، 6 أشهر"
+                    />
+                    {formErrors.duration && (
+                      <p className="text-red-500 text-sm mt-1">{formErrors.duration}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-[#780C28] font-medium mb-2">
+                      التوقعات من الشراكة
                     </label>
                     <textarea
                       name="expectations"
                       value={formData.expectations}
                       onChange={handleChange}
-                      rows="3"
-                      className={getInputClass("expectations")}
-                      placeholder="اذكر ما تتوقعه من هذه الشراكة وكيف يمكننا أن نساعدك"
-                    ></textarea>
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#780C28] focus:ring-[#780C28] focus:ring-2 transition-all duration-300 outline-none text-[#780C28]"
+                      rows={4}
+                      placeholder="شاركنا توقعاتك من هذه الشراكة"
+                    />
                   </div>
 
                   <div>
                     <label className="block text-[#780C28] font-medium mb-2">
-                      ماذا تقدم في هذه الشراكة؟
+                      ما يمكننا تقديمه
                     </label>
                     <textarea
                       name="ourOffer"
                       value={formData.ourOffer}
                       onChange={handleChange}
-                      rows="3"
-                      className={getInputClass("ourOffer")}
-                      placeholder="اذكر ما يمكن لمؤسستك تقديمه في إطار هذه الشراكة"
-                    ></textarea>
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-[#780C28] focus:ring-[#780C28] focus:ring-2 transition-all duration-300 outline-none text-[#780C28]"
+                      rows={4}
+                      placeholder="كيف يمكننا دعمكم كشريك"
+                    />
                   </div>
 
-                  <div className="bg-white p-4 rounded-lg border border-[#780C28]/20">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        name="confirmation"
-                        checked={formData.confirmation}
-                        onChange={handleChange}
-                        className={`w-5 h-5 text-[#780C28] border-gray-300 rounded focus:ring-[#780C28] ${
-                          formErrors.confirmation ? 'border-red-500' : ''
-                        }`}
-                      />
-                      <label className="text-[#780C28] select-none">
-                        أقر أن جميع المعلومات المقدمة صحيحة ودقيقة وأنني مخول بتمثيل المؤسسة في هذا الطلب
-                        <span className="text-red-500"> *</span>
-                      </label>
-                    </div>
-                    {formErrors.confirmation && (
-                      <p className="text-red-500 text-sm mt-2 mr-8">{formErrors.confirmation}</p>
-                    )}
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      name="confirmation"
+                      checked={formData.confirmation}
+                      onChange={handleChange}
+                      className={`w-5 h-5 border rounded focus:ring-2 ${
+                        formErrors.confirmation
+                          ? "border-red-500 focus:ring-red-500"
+                          : "border-gray-300 focus:ring-[#780C28]"
+                      }`}
+                    />
+                    <label className="text-[#780C28] select-none">
+                      أؤكد صحة المعلومات المدخلة وأوافق على الشروط
+                    </label>
                   </div>
+                  {formErrors.confirmation && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.confirmation}</p>
+                  )}
                 </div>
               )}
 
-              <div className="flex justify-between mt-8">
-                {currentStep > 1 && (
+              <div className="mt-8 flex justify-between">
+                {currentStep > 1 ? (
                   <button
                     type="button"
                     onClick={prevStep}
-                    className="py-2 px-4 border border-[#780C28] rounded-lg text-md font-medium text-[#780C28] bg-white hover:bg-[#780C28]/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#780C28] transition"
+                    className="px-6 py-3 bg-gray-300 hover:bg-gray-400 rounded-lg font-medium text-[#780C28] transition"
                   >
                     السابق
                   </button>
+                ) : (
+                  <div />
                 )}
+
                 {currentStep < totalSteps ? (
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="py-2 px-6 border border-transparent rounded-lg shadow-sm text-md font-medium text-white bg-[#780C28] hover:bg-[#5e0a20] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#780C28] transition"
+                    className="px-6 py-3 bg-[#780C28] hover:bg-[#5e071b] rounded-lg font-medium text-white transition"
                   >
                     التالي
                   </button>
@@ -685,59 +679,13 @@ const PartnerForm = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className={`py-3 px-8 border border-transparent rounded-lg shadow-sm text-md font-medium text-white bg-[#780C28] hover:bg-[#5e0a20] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#780C28] transition ${
-                      loading ? "opacity-70 cursor-not-allowed" : ""
-                    }`}
+                    className="px-6 py-3 bg-[#780C28] hover:bg-[#5e071b] rounded-lg font-medium text-white transition disabled:opacity-50"
                   >
-                    {loading ? (
-                      <span className="flex items-center justify-center">
-                        <svg
-                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        جاري التسجيل...
-                      </span>
-                    ) : (
-                      <span className="flex items-center justify-center">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5 mr-2"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        تسجيل طلب الشراكة
-                      </span>
-                    )}
+                    {loading ? "جارٍ الإرسال..." : "إرسال الطلب"}
                   </button>
                 )}
               </div>
             </form>
-
-            <p className="text-xs text-gray-500 text-center mt-6">
-              الحقول المميزة بـ <span className="text-red-500">*</span> حقول إلزامية
-            </p>
           </div>
         </div>
       </div>

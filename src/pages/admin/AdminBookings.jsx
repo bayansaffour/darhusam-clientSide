@@ -1,8 +1,7 @@
-// components/Bookings/AdminBookings.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Search, CalendarDays, Home, Trash2, Filter, X, Clock, Mail, Phone } from "lucide-react";
-import Swal from 'sweetalert2';
+import { Search, CalendarDays, Trash2, X, Clock, Mail, Phone } from "lucide-react";
+import Swal from "sweetalert2";
 
 const AdminBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -15,26 +14,27 @@ const AdminBookings = () => {
     search: "",
   });
 
-  useEffect(() => {
-    fetchData();
-    fetchHalls();
-  }, [filters]);
+  const backendURL = process.env.REACT_APP_BACKEND_URL;
 
   const fetchData = async () => {
+    setLoading(true);
+    setError("");
     try {
       const token = localStorage.getItem("adminToken");
       const params = new URLSearchParams();
+
       if (filters.hallId) params.append("hallId", filters.hallId);
       if (filters.date) params.append("date", filters.date);
       if (filters.search) params.append("search", filters.search);
 
       const response = await axios.get(
-        `http://localhost:5000/api/bookings?${params.toString()}`,
+        `${backendURL}/api/bookings?${params.toString()}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setBookings(response.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch bookings");
+      setError(err.response?.data?.message || "فشل تحميل الحجوزات");
+      setBookings([]);
     } finally {
       setLoading(false);
     }
@@ -44,54 +44,59 @@ const AdminBookings = () => {
     try {
       const token = localStorage.getItem("adminToken");
       const response = await axios.get(
-        "http://localhost:5000/api/bookings/unique-halls",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        `${backendURL}/api/bookings/unique-halls`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setHalls(response.data);
     } catch (err) {
-      console.error("Failed to fetch halls:", err);
-      // Fallback to empty array if API fails
+      console.error("فشل تحميل القاعات:", err);
       setHalls([]);
     }
   };
 
+  useEffect(() => {
+    fetchHalls();
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [filters]);
+
   const handleDelete = async (id) => {
     try {
       const result = await Swal.fire({
-        title: 'هل أنت متأكد من حذف هذا الحجز؟',
+        title: "هل أنت متأكد من حذف هذا الحجز؟",
         text: "لا يمكن التراجع عن هذا الإجراء!",
-        icon: 'warning',
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: '#780C28',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'نعم، احذف الحجز',
-        cancelButtonText: 'إلغاء',
-        reverseButtons: true
+        confirmButtonColor: "#780C28",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "نعم، احذف الحجز",
+        cancelButtonText: "إلغاء",
+        reverseButtons: true,
       });
 
       if (result.isConfirmed) {
         const token = localStorage.getItem("adminToken");
-        await axios.delete(`http://localhost:5000/api/bookings/${id}`, {
+        await axios.delete(`${backendURL}/api/bookings/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        
+
         await Swal.fire({
-          title: 'تم الحذف!',
-          text: 'تم حذف الحجز بنجاح.',
-          icon: 'success',
-          confirmButtonColor: '#780C28'
+          title: "تم الحذف!",
+          text: "تم حذف الحجز بنجاح.",
+          icon: "success",
+          confirmButtonColor: "#780C28",
         });
-        
+
         fetchData();
       }
     } catch (err) {
       Swal.fire({
-        title: 'خطأ!',
-        text: err.response?.data?.message || 'حدث خطأ أثناء حذف الحجز',
-        icon: 'error',
-        confirmButtonColor: '#780C28'
+        title: "خطأ!",
+        text: err.response?.data?.message || "حدث خطأ أثناء حذف الحجز",
+        icon: "error",
+        confirmButtonColor: "#780C28",
       });
     }
   };
@@ -110,9 +115,8 @@ const AdminBookings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#EAFAEA]">
+    <div className="min-h-screen bg-[#EAFAEA]" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header Section */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <div className="flex items-center gap-4">
             <div className="p-2 bg-[#780C28] rounded-lg">
@@ -125,16 +129,28 @@ const AdminBookings = () => {
           </div>
         </div>
 
-        {/* Error Message */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 border-r-4 border-red-400 rounded-lg">
             <p className="text-red-800">{error}</p>
           </div>
         )}
 
-        {/* Filter Section */}
         <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+            <select
+              name="hallId"
+              value={filters.hallId}
+              onChange={handleFilterChange}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-[#780C28] focus:ring-1 focus:ring-[#780C28]/50"
+            >
+              <option value="">اختر القاعة</option>
+              {halls.map((hall) => (
+                <option key={hall._id || hall.id || hall} value={hall._id || hall.id || hall}>
+                  {hall.name || hall}
+                </option>
+              ))}
+            </select>
+
             <div className="relative">
               <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                 <CalendarDays className="w-5 h-5 text-gray-400" />
@@ -153,7 +169,7 @@ const AdminBookings = () => {
                 <Search className="w-5 h-5 text-gray-400" />
               </div>
               <input
-                type="text"
+                type="search"
                 name="search"
                 value={filters.search}
                 onChange={handleFilterChange}
@@ -172,7 +188,6 @@ const AdminBookings = () => {
           </div>
         </div>
 
-        {/* Bookings List */}
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           {loading ? (
             <div className="p-8 text-center">
@@ -186,10 +201,7 @@ const AdminBookings = () => {
           ) : (
             <div className="divide-y divide-gray-100">
               {bookings.map((booking) => (
-                <div
-                  key={booking._id}
-                  className="p-4 hover:bg-gray-50 transition-colors"
-                >
+                <div key={booking._id} className="p-4 hover:bg-gray-50 transition-colors">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-start gap-3">
@@ -198,14 +210,9 @@ const AdminBookings = () => {
                         </div>
                         <div className="flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              {booking.fullName}
-                            </h3>
-                            <span className="text-sm text-gray-500">
-                              {booking.hallName}
-                            </span>
+                            <h3 className="text-lg font-semibold text-gray-900">{booking.fullName}</h3>
+                            <span className="text-sm text-gray-500">{booking.hallName}</span>
                           </div>
-                          
                           <div className="mt-2 flex flex-wrap gap-2">
                             <div className="flex items-center text-sm text-gray-600">
                               <CalendarDays className="w-4 h-4 ml-1 text-[#780C28]" />
@@ -224,7 +231,6 @@ const AdminBookings = () => {
                               {booking.email}
                             </div>
                           </div>
-
                           {booking.notes && (
                             <p className="mt-2 text-sm text-gray-600 bg-gray-50 p-2 rounded-lg">
                               {booking.notes}
@@ -233,12 +239,10 @@ const AdminBookings = () => {
                         </div>
                       </div>
                     </div>
-
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => handleDelete(booking._id)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="حذف الحجز"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>

@@ -9,11 +9,14 @@ export default function EnhancedNews() {
   const [cardsToShow, setCardsToShow] = useState(3);
   const navigate = useNavigate();
 
+  // رابط السيرفر من env
+  const apiBaseUrl = import.meta.env.VITE_BACKEND_URL;
+
   // Fetch events
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const { data } = await axios.get("http://localhost:5000/api/home/events");
+        const { data } = await axios.get(`${apiBaseUrl}/api/home/events`);
         setEvents(data);
       } catch (err) {
         console.error("Error fetching events:", err);
@@ -24,11 +27,7 @@ export default function EnhancedNews() {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setCardsToShow(1);
-      } else {
-        setCardsToShow(3);
-      }
+      setCardsToShow(window.innerWidth < 768 ? 1 : 3);
     };
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -38,15 +37,11 @@ export default function EnhancedNews() {
   const totalPages = Math.ceil(events.length / cardsToShow);
 
   const goToPrevPage = () => {
-    setCurrentPage(prev =>
-      prev === 0 ? totalPages - 1 : prev - 1
-    );
+    setCurrentPage(prev => (prev === 0 ? totalPages - 1 : prev - 1));
   };
 
   const goToNextPage = () => {
-    setCurrentPage(prev =>
-      prev === totalPages - 1 ? 0 : prev + 1
-    );
+    setCurrentPage(prev => (prev === totalPages - 1 ? 0 : prev + 1));
   };
 
   const getVisibleEvents = () => {
@@ -90,10 +85,7 @@ export default function EnhancedNews() {
             {getVisibleEvents().map(evt => (
               <div
                 key={evt._id}
-                className={`
-                  bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl
-                  transition-all duration-500 border border-gray-200 flex flex-col transform hover:-translate-y-2
-                `}
+                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500 border border-gray-200 flex flex-col transform hover:-translate-y-2"
                 style={{ width: `${100 / cardsToShow}%` }}
               >
                 {/* Image */}
@@ -103,7 +95,7 @@ export default function EnhancedNews() {
                     src={
                       evt.imageUrl.startsWith("http")
                         ? evt.imageUrl
-                        : `http://localhost:5000${evt.imageUrl}`
+                        : `${apiBaseUrl}${evt.imageUrl}`
                     }
                     alt={evt.title}
                     className="w-full h-full object-cover transition-all duration-500 hover:scale-105"
@@ -120,7 +112,6 @@ export default function EnhancedNews() {
                       ? `${evt.description.substring(0, 100)}…`
                       : evt.description}
                   </p>
-
 
                   <div className="bg-gradient-to-r from-[#780C28] to-[#a01040] text-white p-3 rounded-lg mb-4 text-center">
                     <div className="text-xs opacity-90">التاريخ</div>
@@ -169,17 +160,9 @@ export default function EnhancedNews() {
               className="absolute left-[-48px] top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-100 text-[#780C28] p-3 rounded-full shadow transition-all duration-300 hover:scale-105"
               aria-label="السابق"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6"></polyline>
               </svg>
             </button>
@@ -189,17 +172,9 @@ export default function EnhancedNews() {
               className="absolute right-[-48px] top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-100 text-[#780C28] p-3 rounded-full shadow transition-all duration-300 hover:scale-105"
               aria-label="التالي"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
             </button>
@@ -213,8 +188,8 @@ export default function EnhancedNews() {
               key={idx}
               onClick={() => setCurrentPage(idx)}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${currentPage === idx
-                  ? "bg-[#780C28] w-6"
-                  : "bg-gray-300 hover:bg-gray-400"
+                ? "bg-[#780C28] w-6"
+                : "bg-gray-300 hover:bg-gray-400"
                 }`}
             />
           ))}
@@ -223,4 +198,3 @@ export default function EnhancedNews() {
     </div>
   );
 }
-

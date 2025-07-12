@@ -136,7 +136,7 @@ const TraineeForm = () => {
     setLoading(true);
 
     try {
-      await axios.post("http://localhost:5000/api/trainee/submit", formData);
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/trainee/submit`, formData);
       toast.success("تم تسجيل طلب التدريب بنجاح! سيتم التواصل معك قريباً.");
       setFormData({
         fullName: "",
@@ -162,6 +162,7 @@ const TraineeForm = () => {
       setLoading(false);
     }
   };
+
 
   const getInputClass = (fieldName) => {
     return `w-full px-4 py-3 rounded-lg border text-[#780C28] bg-white ${
@@ -515,7 +516,7 @@ const TraineeForm = () => {
                             value={referee.phone}
                             onChange={(e) => handleRefereeChange(index, e)}
                             className={getInputClass(`referee-phone-${index}`)}
-                            placeholder="رقم هاتف المرجع"
+                            placeholder="07xxxxxxxx"
                           />
                         </div>
 
@@ -529,13 +530,13 @@ const TraineeForm = () => {
                             value={referee.email}
                             onChange={(e) => handleRefereeChange(index, e)}
                             className={getInputClass(`referee-email-${index}`)}
-                            placeholder="البريد الإلكتروني للمرجع"
+                            placeholder="example@domain.com"
                           />
                         </div>
 
                         <div>
                           <label className="block text-[#780C28] font-medium mb-2">
-                            المسمى الوظيفي
+                            الوظيفة
                           </label>
                           <input
                             type="text"
@@ -543,13 +544,13 @@ const TraineeForm = () => {
                             value={referee.position}
                             onChange={(e) => handleRefereeChange(index, e)}
                             className={getInputClass(`referee-position-${index}`)}
-                            placeholder="المسمى الوظيفي للمرجع"
+                            placeholder="الوظيفة"
                           />
                         </div>
 
-                        <div className="md:col-span-2">
+                        <div>
                           <label className="block text-[#780C28] font-medium mb-2">
-                            مكان العمل
+                            مكان السكن
                           </label>
                           <input
                             type="text"
@@ -557,7 +558,7 @@ const TraineeForm = () => {
                             value={referee.residence}
                             onChange={(e) => handleRefereeChange(index, e)}
                             className={getInputClass(`referee-residence-${index}`)}
-                            placeholder="مكان عمل المرجع"
+                            placeholder="المحافظة / المنطقة"
                           />
                         </div>
                       </div>
@@ -565,69 +566,54 @@ const TraineeForm = () => {
                   ))}
 
                   {formData.referees.length < 3 && (
-                    <div className="flex justify-center">
-                      <button
-                        type="button"
-                        onClick={addReferee}
-                        className="flex items-center text-[#780C28] hover:text-[#5e0a20]"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5 ml-1"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 4v16m8-8H4"
-                          />
-                        </svg>
-                        إضافة مرجع جديد
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={addReferee}
+                      className="text-[#780C28] border border-[#780C28] px-4 py-2 rounded-lg hover:bg-[#780C28] hover:text-white transition"
+                    >
+                      إضافة مرجع جديد
+                    </button>
                   )}
 
-                  <div className="bg-white p-4 rounded-lg border border-[#780C28]/20">
-                    <div className="flex items-center gap-3">
+                  <div className="mt-6">
+                    <label className="flex items-center gap-2 text-[#780C28] select-none">
                       <input
                         type="checkbox"
                         name="confirmation"
                         checked={formData.confirmation}
                         onChange={handleChange}
-                        className={`w-5 h-5 text-[#780C28] border-gray-300 rounded focus:ring-[#780C28] ${
-                          formErrors.confirmation ? 'border-red-500' : ''
-                        }`}
+                        className="w-5 h-5 text-[#780C28] border-gray-300 rounded focus:ring-[#780C28]"
                       />
-                      <label className="text-[#780C28] select-none">
-                        أقر أن جميع المعلومات المقدمة صحيحة ودقيقة
-                        <span className="text-red-500"> *</span>
-                      </label>
-                    </div>
+                      <span>
+                        أؤكد أن جميع المعلومات المدخلة صحيحة وأنا مسؤول عن صحتها.
+                        <span className="text-red-500">*</span>
+                      </span>
+                    </label>
                     {formErrors.confirmation && (
-                      <p className="text-red-500 text-sm mt-2 mr-8">{formErrors.confirmation}</p>
+                      <p className="text-red-500 text-sm mt-1">{formErrors.confirmation}</p>
                     )}
                   </div>
                 </div>
               )}
 
-              <div className="flex justify-between mt-8">
-                {currentStep > 1 && (
+              <div className="mt-8 flex justify-between">
+                {currentStep > 1 ? (
                   <button
                     type="button"
                     onClick={prevStep}
-                    className="py-2 px-4 border border-[#780C28] rounded-lg text-md font-medium text-[#780C28] bg-white hover:bg-[#780C28]/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#780C28] transition"
+                    className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
                   >
                     السابق
                   </button>
+                ) : (
+                  <div></div>
                 )}
+
                 {currentStep < totalSteps ? (
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="py-2 px-6 border border-transparent rounded-lg shadow-sm text-md font-medium text-white bg-[#780C28] hover:bg-[#5e0a20] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#780C28] transition"
+                    className="px-6 py-3 bg-[#780C28] text-white rounded-lg hover:bg-[#5a061c] transition"
                   >
                     التالي
                   </button>
@@ -635,59 +621,38 @@ const TraineeForm = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className={`py-3 px-8 border border-transparent rounded-lg shadow-sm text-md font-medium text-white bg-[#780C28] hover:bg-[#5e0a20] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#780C28] transition ${
-                      loading ? "opacity-70 cursor-not-allowed" : ""
+                    className={`px-6 py-3 rounded-lg text-white transition ${
+                      loading ? "bg-[#780C2880]" : "bg-[#780C28] hover:bg-[#5a061c]"
                     }`}
                   >
                     {loading ? (
-                      <span className="flex items-center justify-center">
-                        <svg
-                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        جاري التسجيل...
-                      </span>
-                    ) : (
-                      <span className="flex items-center justify-center">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5 mr-2"
-                          viewBox="0 0 20 20"
+                      <svg
+                        className="animate-spin h-5 w-5 mx-auto"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
                           fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        تسجيل طلب التدريب
-                      </span>
+                          d="M4 12a8 8 0 018-8v8H4z"
+                        ></path>
+                      </svg>
+                    ) : (
+                      "إرسال"
                     )}
                   </button>
                 )}
               </div>
             </form>
-
-            <p className="text-xs text-gray-500 text-center mt-6">
-              الحقول المميزة بـ <span className="text-red-500">*</span> حقول إلزامية
-            </p>
           </div>
         </div>
       </div>

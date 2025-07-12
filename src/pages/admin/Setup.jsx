@@ -31,10 +31,13 @@ const Setup = () => {
     }
 
     try {
-      await axios.post('http://localhost:5000/api/admin/setup', {
-        username: formData.username,
-        password: formData.password
-      });
+      await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/admin/setup`,
+        {
+          username: formData.username,
+          password: formData.password
+        }
+      );
       navigate('/admin/login');
     } catch (error) {
       setError(error.response?.data?.message || 'حدث خطأ أثناء إنشاء حساب المشرف');
@@ -116,4 +119,4 @@ const Setup = () => {
   );
 };
 
-export default Setup; 
+export default Setup;

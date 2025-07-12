@@ -4,6 +4,8 @@ import { FileText, Calendar, Image } from "lucide-react";
 import axios from "axios";
 import Swal from "sweetalert2";
 
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
 const AdminForms = () => {
   const [activeTab, setActiveTab] = useState("articles");
   const navigate = useNavigate();
@@ -92,15 +94,10 @@ const AdminForms = () => {
         formData.append("image", articleForm.image);
       }
 
-      const response = await axios.post(
-        "http://localhost:5000/api/news/articles",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await axios.post(`${API_BASE_URL}/api/news/articles`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 30000,
+      });
 
       Swal.fire({
         title: "تمت الإضافة بنجاح",
@@ -121,13 +118,22 @@ const AdminForms = () => {
         image: null,
       });
     } catch (error) {
+      let message = "حدث خطأ أثناء إضافة المقال";
+
+      if (error.code === "ERR_NETWORK") {
+        message = "فشل الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت.";
+      } else if (error.response) {
+        message = error.response.data.message || message;
+      }
+
       Swal.fire({
         title: "خطأ",
-        text: "حدث خطأ أثناء إضافة المقال",
+        text: message,
         icon: "error",
         confirmButtonText: "حسناً",
         confirmButtonColor: "#780C28",
       });
+
       console.error("Error adding article:", error);
     }
   };
@@ -148,15 +154,10 @@ const AdminForms = () => {
         formData.append("image", eventForm.image);
       }
 
-      const response = await axios.post(
-        "http://localhost:5000/api/news/events",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await axios.post(`${API_BASE_URL}/api/news/events`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 30000,
+      });
 
       Swal.fire({
         title: "تمت الإضافة بنجاح",
@@ -177,13 +178,22 @@ const AdminForms = () => {
         image: null,
       });
     } catch (error) {
+      let message = "حدث خطأ أثناء إضافة الفعالية";
+
+      if (error.code === "ERR_NETWORK") {
+        message = "فشل الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت.";
+      } else if (error.response) {
+        message = error.response.data.message || message;
+      }
+
       Swal.fire({
         title: "خطأ",
-        text: "حدث خطأ أثناء إضافة الفعالية",
+        text: message,
         icon: "error",
         confirmButtonText: "حسناً",
         confirmButtonColor: "#780C28",
       });
+
       console.error("Error adding event:", error);
     }
   };
@@ -198,19 +208,13 @@ const AdminForms = () => {
       formData.append("type", mediaForm.type);
       formData.append("media", mediaForm.file);
 
-      const response = await axios.post(
-        "http://localhost:5000/api/news/media",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          timeout: 30000,
-          validateStatus: function (status) {
-            return status >= 200 && status < 500;
-          }
-        }
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/news/media`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 30000,
+        validateStatus: function (status) {
+          return status >= 200 && status < 500;
+        },
+      });
 
       if (response.data.success) {
         Swal.fire({
@@ -233,8 +237,8 @@ const AdminForms = () => {
     } catch (error) {
       console.error("Error adding media:", error);
       let errorMessage = "حدث خطأ أثناء إضافة الوسائط";
-      
-      if (error.code === 'ERR_NETWORK') {
+
+      if (error.code === "ERR_NETWORK") {
         errorMessage = "فشل الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت وإعادة المحاولة.";
       } else if (error.response) {
         errorMessage = error.response.data.message || errorMessage;
@@ -351,9 +355,7 @@ const AdminForms = () => {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-gray-700 mb-2">
-                    ملخص المقال
-                  </label>
+                  <label className="block text-gray-700 mb-2">ملخص المقال</label>
                   <textarea
                     name="summary"
                     value={articleForm.summary}
@@ -364,9 +366,7 @@ const AdminForms = () => {
                   ></textarea>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-gray-700 mb-2">
-                    محتوى المقال
-                  </label>
+                  <label className="block text-gray-700 mb-2">محتوى المقال</label>
                   <textarea
                     name="content"
                     value={articleForm.content}
@@ -377,9 +377,7 @@ const AdminForms = () => {
                   ></textarea>
                 </div>
                 <div>
-                  <label className="block text-gray-700 mb-2">
-                    صورة المقال
-                  </label>
+                  <label className="block text-gray-700 mb-2">صورة المقال</label>
                   <input
                     type="file"
                     onChange={handleArticleImage}
@@ -417,9 +415,7 @@ const AdminForms = () => {
             <form onSubmit={handleEventSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <label className="block text-gray-700 mb-2">
-                    عنوان الفعالية
-                  </label>
+                  <label className="block text-gray-700 mb-2">عنوان الفعالية</label>
                   <input
                     type="text"
                     name="title"
@@ -484,9 +480,7 @@ const AdminForms = () => {
                   <label className="mr-2 text-gray-700">فعالية مميزة</label>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-gray-700 mb-2">
-                    وصف الفعالية
-                  </label>
+                  <label className="block text-gray-700 mb-2">وصف الفعالية</label>
                   <textarea
                     name="description"
                     value={eventForm.description}
@@ -497,9 +491,7 @@ const AdminForms = () => {
                   ></textarea>
                 </div>
                 <div>
-                  <label className="block text-gray-700 mb-2">
-                    صورة الفعالية
-                  </label>
+                  <label className="block text-gray-700 mb-2">صورة الفعالية</label>
                   <input
                     type="file"
                     onChange={handleEventImage}
@@ -538,15 +530,17 @@ const AdminForms = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700 mb-2">النوع</label>
+                  <label className="block text-gray-700 mb-2">نوع الوسائط</label>
                   <select
                     name="type"
                     value={mediaForm.type}
                     onChange={handleMediaChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    required
                   >
                     <option value="image">صورة</option>
                     <option value="video">فيديو</option>
+                    <option value="audio">صوت</option>
                   </select>
                 </div>
                 <div className="md:col-span-2">
@@ -561,13 +555,12 @@ const AdminForms = () => {
                   ></textarea>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-gray-700 mb-2">الملف</label>
+                  <label className="block text-gray-700 mb-2">رفع الملف</label>
                   <input
                     type="file"
                     name="file"
                     onChange={handleMediaChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
-                    accept={mediaForm.type === "image" ? "image/*" : "video/*"}
                     required
                   />
                 </div>

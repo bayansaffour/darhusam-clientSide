@@ -1,10 +1,6 @@
-
-
-
 import React, { useState, useEffect } from "react";
 import { Star, ArrowRight, Heart, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
 
 export default function SuccessStoriesCards() {
   const [stories, setStories] = useState([]);
@@ -12,17 +8,18 @@ export default function SuccessStoriesCards() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const apiBaseUrl = import.meta.env.VITE_BACKEND_URL;
+
   useEffect(() => {
     const fetchStories = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://localhost:5000/api/home/success-stories");
+        const response = await fetch(`${apiBaseUrl}/api/home/success-stories`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         if (Array.isArray(data)) {
-          // Take only first 3 stories
           setStories(data.slice(0, 3));
         } else {
           setStories([]);
@@ -38,7 +35,7 @@ export default function SuccessStoriesCards() {
     };
 
     fetchStories();
-  }, []);
+  }, [apiBaseUrl]);
 
   if (loading) {
     return (
@@ -91,15 +88,14 @@ export default function SuccessStoriesCards() {
 
   return (
     <div className="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden">
-      {/* Decorative background elements */}
+      {/* خلفيات زخرفية */}
       <div className="absolute top-10 left-10 w-32 h-32 bg-[#780C28]/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-10 right-10 w-40 h-40 bg-[#6E8E59]/10 rounded-full blur-3xl"></div>
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-[#780C28]/5 to-[#6E8E59]/5 rounded-full blur-3xl"></div>
-      
+
       <div className="max-w-7xl mx-auto px-4 relative z-10">
-        {/* Header Section */}
+        {/* عنوان القسم */}
         <div className="text-center mb-16">
-          
           <h2 className="text-4xl font-bold bg-[#780C28] bg-clip-text text-transparent mb-4">
             قصص النجاح
           </h2>
@@ -109,7 +105,7 @@ export default function SuccessStoriesCards() {
           <div className="w-24 h-1 bg-gradient-to-r from-[#780C28] to-[#6E8E59] mx-auto mt-6 rounded-full"></div>
         </div>
 
-        {/* Cards Grid */}
+        {/* بطاقات القصص */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {stories.map((story, index) => (
             <div
@@ -120,32 +116,30 @@ export default function SuccessStoriesCards() {
                 animation: 'fadeInUp 0.8s ease-out forwards'
               }}
             >
-              {/* Card Border Gradient */}
               <div className="absolute inset-0 bg-gradient-to-r from-[#780C28] via-[#6E8E59] to-[#780C28] rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-[2px]">
                 <div className="w-full h-full bg-white rounded-3xl"></div>
               </div>
-              
-              {/* Image Container */}
+
+              {/* صورة القصة */}
               <div className="relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent z-10"></div>
                 <img
-                  src={story.imageUrl?.startsWith("http")
-                    ? story.imageUrl
-                    : `http://localhost:5000${story.imageUrl}`}
+                  src={
+                    story.imageUrl?.startsWith("http")
+                      ? story.imageUrl
+                      : `${apiBaseUrl}${story.imageUrl}`
+                  }
                   alt={story.name}
                   className="w-full h-48 object-cover transition-transform duration-700 group-hover:scale-110"
                   onError={(e) => {
                     e.target.src = "/placeholder-image.jpg";
                   }}
                 />
-                
-                {/* Floating Star Badge */}
                 <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-sm rounded-full p-3 shadow-lg z-20">
                   <Star className="w-5 h-5 text-[#780C28] fill-current" />
                 </div>
               </div>
 
-              {/* Content */}
               <div className="relative p-8">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-3 h-3 bg-gradient-to-r from-[#780C28] to-[#6E8E59] rounded-full shadow-sm"></div>
@@ -153,12 +147,11 @@ export default function SuccessStoriesCards() {
                     {story.name}
                   </h3>
                 </div>
-                
+
                 <p className="text-gray-600 leading-relaxed mb-6 line-clamp-3">
                   {story.shortStory}
                 </p>
-                
-                {/* Read More Button */}
+
                 <div className="flex items-center justify-between">
                   <button
                     onClick={() => navigate(`/success-stories`)}
@@ -167,8 +160,6 @@ export default function SuccessStoriesCards() {
                     <span>اقرأ المزيد</span>
                     <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
                   </button>
-                  
-                  {/* Decorative dots */}
                   <div className="flex gap-2">
                     <div className="w-2 h-2 bg-[#780C28]/30 rounded-full"></div>
                     <div className="w-2 h-2 bg-[#6E8E59]/30 rounded-full"></div>
@@ -176,14 +167,10 @@ export default function SuccessStoriesCards() {
                   </div>
                 </div>
               </div>
-
-              {/* Bottom gradient accent */}
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#780C28] via-[#6E8E59] to-[#780C28] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
             </div>
           ))}
         </div>
-
-        
       </div>
 
       <style jsx>{`
@@ -197,7 +184,6 @@ export default function SuccessStoriesCards() {
             transform: translateY(0);
           }
         }
-        
         .line-clamp-3 {
           display: -webkit-box;
           -webkit-line-clamp: 3;

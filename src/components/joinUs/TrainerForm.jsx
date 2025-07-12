@@ -132,7 +132,7 @@ const TrainerForm = () => {
     setLoading(true);
 
     try {
-      await axios.post("http://localhost:5000/api/trainer/submit", formData);
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/trainer/submit`, formData);
       toast.success("تم تسجيل طلب التدريب بنجاح! سيتم التواصل معك قريباً.");
       setFormData({
         fullName: "",
@@ -147,6 +147,7 @@ const TrainerForm = () => {
         referees: [{ name: "", phone: "", email: "", position: "", residence: "" }],
         confirmation: false,
       });
+      setFormErrors({});
       setCurrentStep(1);
     } catch (error) {
       console.error(error);
@@ -518,110 +519,65 @@ const TrainerForm = () => {
                     <button
                       type="button"
                       onClick={addReferee}
-                      className="flex items-center text-[#780C28] hover:text-[#5e0a20] text-sm"
+                      className="px-4 py-2 bg-[#780C28] text-white rounded hover:bg-[#5a061b] transition"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 ml-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
                       إضافة مرجع جديد
                     </button>
                   )}
 
-                  <div className="mt-4 pt-3 border-t border-gray-200">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        name="confirmation"
-                        checked={formData.confirmation}
-                        onChange={handleChange}
-                        className={`w-4 h-4 text-[#780C28] border-gray-300 rounded focus:ring-[#780C28] ${
-                          formErrors.confirmation ? 'border-red-500' : ''
-                        }`}
-                      />
-                      <label className="text-[#780C28] text-sm">
-                        أقر أن جميع المعلومات المقدمة صحيحة ودقيقة
-                        <span className="text-red-500"> *</span>
-                      </label>
-                    </div>
-                    {formErrors.confirmation && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors.confirmation}</p>
-                    )}
+                  <div className="mt-6 flex items-center">
+                    <input
+                      type="checkbox"
+                      id="confirmation"
+                      name="confirmation"
+                      checked={formData.confirmation}
+                      onChange={handleChange}
+                      className="mr-2 accent-[#780C28]"
+                    />
+                    <label htmlFor="confirmation" className="text-[#780C28] select-none">
+                      أؤكد صحة المعلومات المدخلة
+                    </label>
                   </div>
+                  {formErrors.confirmation && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.confirmation}</p>
+                  )}
                 </div>
               )}
 
-              <div className="flex justify-between mt-6">
+              <div className="mt-8 flex justify-between">
                 {currentStep > 1 && (
                   <button
                     type="button"
                     onClick={prevStep}
-                    className="px-4 py-2 border border-[#780C28] rounded-lg text-sm font-medium text-[#780C28] bg-white hover:bg-[#780C28]/10 transition"
+                    className="px-6 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition"
+                    disabled={loading}
                   >
                     السابق
                   </button>
                 )}
-                {currentStep < totalSteps ? (
+
+                {currentStep < totalSteps && (
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="px-6 py-2 bg-[#780C28] text-white rounded-lg text-sm font-medium hover:bg-[#5e0a20] transition"
+                    className="ml-auto px-6 py-2 bg-[#780C28] text-white rounded hover:bg-[#5a061b] transition"
+                    disabled={loading}
                   >
                     التالي
                   </button>
-                ) : (
+                )}
+
+                {currentStep === totalSteps && (
                   <button
                     type="submit"
+                    className="ml-auto px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition disabled:opacity-50"
                     disabled={loading}
-                    className={`px-6 py-2 bg-[#780C28] text-white rounded-lg text-sm font-medium hover:bg-[#5e0a20] transition ${
-                      loading ? "opacity-70 cursor-not-allowed" : ""
-                    }`}
                   >
-                    {loading ? (
-                      <span className="flex items-center justify-center">
-                        <svg
-                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        جاري التسجيل...
-                      </span>
-                    ) : (
-                      "تسجيل طلب التدريب"
-                    )}
+                    {loading ? "جاري الإرسال..." : "إرسال"}
                   </button>
                 )}
               </div>
             </form>
-
-            <p className="text-xs text-gray-500 text-center mt-4">
-              الحقول المميزة بـ <span className="text-red-500">*</span> حقول إلزامية
-            </p>
           </div>
         </div>
       </div>

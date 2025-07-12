@@ -25,9 +25,13 @@ const ContactUs = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSubmitSuccess(false);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/contact/submit', formData);
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/contact/submit`,
+        formData
+      );
       setSubmitSuccess(true);
       setFormData({
         name: '',
@@ -110,17 +114,17 @@ const ContactUs = () => {
             <div className="bg-white rounded-lg shadow-md p-8">
               <h2 className="text-xl font-bold text-[#780C28] mb-6">نموذج تواصل مباشر</h2>
 
-              {submitSuccess ? (
+              {submitSuccess && (
                 <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-6">
                   تم إرسال رسالتك بنجاح. سنتواصل معك قريباً.
                 </div>
-              ) : null}
+              )}
 
-              {error ? (
+              {error && (
                 <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-6">
                   {error}
                 </div>
-              ) : null}
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
@@ -206,4 +210,4 @@ const ContactUs = () => {
   );
 };
 
-export default ContactUs; 
+export default ContactUs;

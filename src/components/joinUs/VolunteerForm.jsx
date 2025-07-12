@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { UserCircle, Mail, Phone, MapPin, FileText, Info, AlertCircle } from 'lucide-react';
+import { UserCircle, Mail, Phone, MapPin, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -66,7 +66,7 @@ const VolunteerForm = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     setFormData(prev => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value
@@ -82,20 +82,19 @@ const VolunteerForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast.error('يرجى التحقق من جميع الحقول المطلوبة');
       return;
     }
 
-    // طباعة البيانات في الكونسول للمساعدة في التصحيح
     console.log('بيانات النموذج المرسلة:', formData);
 
     setLoading(true);
-    
+
     try {
-      const response = await axios.post('http://localhost:5000/api/volunteer/submit', formData);
-      
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/volunteer/submit`, formData);
+
       if (response.status === 201) {
         toast.success('تم التسجيل بنجاح');
         setFormData({
@@ -115,10 +114,10 @@ const VolunteerForm = () => {
           availability: "",
           confirmation: false
         });
+        setFormErrors({});
       }
     } catch (error) {
       if (error.response) {
-        // إظهار رسالة السيرفر للمستخدم إذا كانت موجودة
         toast.error(error.response.data.message || 'حدث خطأ أثناء التسجيل');
       } else if (error.request) {
         toast.error('لم يتم الاتصال بالسيرفر. يرجى المحاولة مرة أخرى');

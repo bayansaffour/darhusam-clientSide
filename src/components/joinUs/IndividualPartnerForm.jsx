@@ -8,6 +8,8 @@ const IndividualPartnerForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
+  const baseURL = import.meta.env.VITE_BACKEND_URL;
+
   const [formData, setFormData] = useState({
     fullName: '',
     nationalId: '',
@@ -75,7 +77,7 @@ const IndividualPartnerForm = () => {
 
     setIsLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/individual-partner/submit', formData);
+      await axios.post(`${baseURL}/api/individual-partner/submit`, formData);
       toast.success('تم التسجيل بنجاح');
       navigate('/');
     } catch (error) {

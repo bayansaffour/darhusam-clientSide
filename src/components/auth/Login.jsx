@@ -13,6 +13,9 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // استخدام متغير البيئة الصحيح
+  const apiBaseUrl = import.meta.env.VITE_BACKEND_URL;
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -26,7 +29,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
+      const response = await axios.post(`${apiBaseUrl}/api/auth/login`, formData);
       login(response.data.user, response.data.token);
       navigate('/');
     } catch (error) {
@@ -138,4 +141,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;

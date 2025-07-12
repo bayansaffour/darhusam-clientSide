@@ -24,7 +24,10 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/admin/login', formData);
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/admin/login`,
+        formData
+      );
       localStorage.setItem('adminToken', response.data.token);
       navigate('/admin/dashboard');
     } catch (error) {
@@ -91,4 +94,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;
