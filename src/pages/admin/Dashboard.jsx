@@ -35,6 +35,8 @@ import AdminPrograms from "./AdminPrograms";
 import AdminBookings from "./AdminBookings";
 
 const Dashboard = () => {
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -63,7 +65,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (activeTab === "resources") {
       axios
-        .get("http://localhost:5000/api/resources")
+        .get(`${import.meta.env.VITE_BACKEND_URL}/api/resources`)
         .then((res) => setResources(res.data.data))
         .catch(() => setResources([]));
     }
@@ -78,7 +80,7 @@ const Dashboard = () => {
       }
 
       const response = await axios.get(
-        "http://localhost:5000/api/admin/dashboard",
+        `${import.meta.env.VITE_BACKEND_URL}/api/admin/dashboard`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -122,7 +124,6 @@ const Dashboard = () => {
       formData.append("description", newResource.description);
       formData.append("category", newResource.category);
 
-      // منطق رفع الملفات حسب التصنيف
       if (newResource.category === 'articles') {
         if (!newResource.images || newResource.images.length === 0) {
           Swal.fire({
@@ -138,9 +139,8 @@ const Dashboard = () => {
           formData.append("images", image);
         });
       } else {
-        // فيديو/عرض/PDF: ملف أو رابط
         if (newResource.file) {
-          formData.append("images", newResource.file); // نستخدم نفس الحقل في الباك
+          formData.append("images", newResource.file);
         } else if (newResource.externalUrl) {
           formData.append("externalUrl", newResource.externalUrl);
         } else {
@@ -156,7 +156,7 @@ const Dashboard = () => {
       }
 
       const response = await axios.post(
-        "http://localhost:5000/api/resources",
+        `${import.meta.env.VITE_BACKEND_URL}/api/resources`,
         formData,
         {
           headers: {
@@ -183,8 +183,7 @@ const Dashboard = () => {
           externalUrl: "",
         });
         setShowAddResourceModal(false);
-        // Refresh resources list
-        const resourcesResponse = await axios.get("http://localhost:5000/api/resources");
+        const resourcesResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/resources`);
         setResources(resourcesResponse.data.data || []);
       }
     } catch (error) {
@@ -214,7 +213,7 @@ const Dashboard = () => {
 
       if (result.isConfirmed) {
         const response = await axios.delete(
-          `http://localhost:5000/api/resources/${resourceId}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/resources/${resourceId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -230,7 +229,7 @@ const Dashboard = () => {
             confirmButtonColor: "#780C28",
           });
           axios
-            .get("http://localhost:5000/api/resources")
+            .get(`${import.meta.env.VITE_BACKEND_URL}/api/resources`)
             .then((res) => setResources(res.data.data))
             .catch(() => setResources([]));
         }
@@ -260,9 +259,8 @@ const Dashboard = () => {
         return;
       }
 
-      console.log("Attempting to delete contact:", contactId);
       const response = await axios.delete(
-        `http://localhost:5000/api/contact/${contactId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/contact/${contactId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -271,8 +269,6 @@ const Dashboard = () => {
         }
       );
 
-      console.log("Delete response:", response.data);
-
       if (response.data.success) {
         Swal.fire({
           title: "تم الحذف!",
@@ -280,13 +276,10 @@ const Dashboard = () => {
           icon: "success",
           confirmButtonColor: "#780C28",
         });
-        // تحديث البيانات بعد الحذف
         await fetchDashboardData();
       }
     } catch (error) {
       console.error("Error deleting contact:", error);
-      console.error("Error response:", error.response);
-
       let errorMessage = "حدث خطأ أثناء حذف الرسالة";
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
@@ -301,13 +294,11 @@ const Dashboard = () => {
     }
   };
 
-  // دالة البحث في البيانات
   const filterData = (data, query) => {
     if (!query) return data;
     query = query.toLowerCase();
 
     return data.filter((item) => {
-      // البحث في جميع الحقول النصية
       return Object.values(item).some((value) => {
         if (typeof value === "string") {
           return value.toLowerCase().includes(query);
@@ -346,6 +337,7 @@ const Dashboard = () => {
             <h2 className="text-2xl font-bold text-white">دار حسام</h2>
             <p className="text-white/70 text-sm mt-1">لوحة التحكم</p>
           </div>
+         {/* ... باقي محتوى الـ JSX ... */}
 
           {/* Navigation Menu with improved scrolling */}
           <nav
@@ -720,18 +712,17 @@ const Dashboard = () => {
                                           confirmButtonText: "نعم، احذف",
                                           cancelButtonText: "إلغاء",
                                         });
+//هنااااا
+                                      if (result.isConfirmed) {
+  const response = await axios.delete(
+    `${import.meta.env.VITE_BACKEND_URL}/api/volunteer/${volunteer._id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+      },
+    }
+  );
 
-                                        if (result.isConfirmed) {
-                                          const response = await axios.delete(
-                                            `http://localhost:5000/api/volunteer/${volunteer._id}`,
-                                            {
-                                              headers: {
-                                                Authorization: `Bearer ${localStorage.getItem(
-                                                  "adminToken"
-                                                )}`,
-                                              },
-                                            }
-                                          );
                                           if (response.data.success) {
                                             await fetchDashboardData();
                                             Swal.fire({
@@ -931,16 +922,15 @@ const Dashboard = () => {
                                         });
 
                                         if (result.isConfirmed) {
-                                          const response = await axios.delete(
-                                            `http://localhost:5000/api/trainer/${trainer._id}`,
-                                            {
-                                              headers: {
-                                                Authorization: `Bearer ${localStorage.getItem(
-                                                  "adminToken"
-                                                )}`,
-                                              },
-                                            }
-                                          );
+                                      const response = await axios.delete(
+  `${import.meta.env.VITE_BACKEND_URL}/api/trainer/${trainer._id}`,
+  {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+    },
+  }
+);
+
                                           if (response.data.success) {
                                             await fetchDashboardData();
                                             Swal.fire({
@@ -1147,17 +1137,16 @@ const Dashboard = () => {
                                           cancelButtonText: "إلغاء",
                                         });
 
-                                        if (result.isConfirmed) {
-                                          const response = await axios.delete(
-                                            `http://localhost:5000/api/trainee/${trainee._id}`,
-                                            {
-                                              headers: {
-                                                Authorization: `Bearer ${localStorage.getItem(
-                                                  "adminToken"
-                                                )}`,
-                                              },
-                                            }
-                                          );
+                                    if (result.isConfirmed) {
+  const response = await axios.delete(
+    `${import.meta.env.VITE_BACKEND_URL}/api/trainee/${trainee._id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+      },
+    }
+  );
+
                                           if (response.data.success) {
                                             await fetchDashboardData();
                                             Swal.fire({
@@ -1181,6 +1170,8 @@ const Dashboard = () => {
                                     }}
                                     className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 flex items-center gap-1"
                                   >
+
+                                    
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
                                       className="h-4 w-4"
@@ -1354,27 +1345,26 @@ const Dashboard = () => {
                                           cancelButtonText: "إلغاء",
                                         });
 
-                                        if (result.isConfirmed) {
-                                          const response = await axios.delete(
-                                            `http://localhost:5000/api/partner/${partner._id}`,
-                                            {
-                                              headers: {
-                                                Authorization: `Bearer ${localStorage.getItem(
-                                                  "adminToken"
-                                                )}`,
-                                              },
-                                            }
-                                          );
-                                          if (response.data.success) {
-                                            await fetchDashboardData();
-                                            Swal.fire({
-                                              title: "تم الحذف!",
-                                              text: "تم حذف الشريك بنجاح",
-                                              icon: "success",
-                                              confirmButtonColor: "#780C28",
-                                            });
-                                          }
-                                        }
+                                     if (result.isConfirmed) {
+  const response = await axios.delete(
+    `${import.meta.env.VITE_BACKEND_URL}/api/volunteer/${volunteer._id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+      },
+    }
+  );
+  if (response.data.success) {
+    await fetchDashboardData();
+    Swal.fire({
+      title: "تم الحذف!",
+      text: "تم حذف المتطوع بنجاح",
+      icon: "success",
+      confirmButtonColor: "#780C28",
+    });
+  }
+}
+
                                       } catch (error) {
                                         Swal.fire({
                                           title: "خطأ!",
@@ -1546,17 +1536,16 @@ const Dashboard = () => {
                                         cancelButtonText: "إلغاء",
                                       });
 
-                                      if (result.isConfirmed) {
-                                        const response = await axios.delete(
-                                          `http://localhost:5000/api/individual-partner/${partner._id}`,
-                                          {
-                                            headers: {
-                                              Authorization: `Bearer ${localStorage.getItem(
-                                                "adminToken"
-                                              )}`,
-                                            },
-                                          }
-                                        );
+                                     if (result.isConfirmed) {
+  const response = await axios.delete(
+    `${import.meta.env.VITE_BACKEND_URL}/api/individual-partner/${partner._id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+      },
+    }
+  );
+
                                         if (response.data.success) {
                                           await fetchDashboardData();
                                           Swal.fire({
@@ -1644,11 +1633,16 @@ const Dashboard = () => {
                         {/* صورة المورد */}
                         <div className="relative h-48 bg-gray-100">
                           {resource.images && resource.images.length > 0 ? (
-                            <img
-                              src={resource.images[0].startsWith('http') ? resource.images[0] : `http://localhost:5000${resource.images[0]}`}
-                              alt={resource.title}
-                              className="w-full h-full object-cover"
-                            />
+                           <img
+  src={
+    resource.images[0].startsWith('http')
+      ? resource.images[0]
+      : `${import.meta.env.VITE_BACKEND_URL}${resource.images[0]}`
+  }
+  alt={resource.title}
+  className="w-full h-full object-cover"
+/>
+
                           ) : (
                             <div className="w-full h-full flex items-center justify-center bg-gray-100">
                               {resource.category === 'videos' && <Video className="w-12 h-12 text-gray-400" />}
@@ -1657,6 +1651,8 @@ const Dashboard = () => {
                               {resource.category === 'articles' && <Newspaper className="w-12 h-12 text-gray-400" />}
                             </div>
                           )}
+
+                          
                           <div className="absolute top-2 right-2">
                             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                               resource.category === 'articles' ? 'bg-blue-100 text-blue-800' :
