@@ -75,15 +75,15 @@ function Navbar() {
         <div className="flex justify-between items-center">
           {/* Logo and Welcome Section */}
           <div className="flex items-center space-x-4 space-x-reverse">
-            <a href="/" className="block">
+            <Link to="/" className="block">
               <img
-                src="/public/daaralhosam.jpg"
+                src="/daaralhosam.jpg"
                 alt="Logo"
                 className={`transition-all duration-300 ${
                   isScrolled ? 'h-16' : 'h-20'
                 } w-auto object-contain`}
               />
-            </a>
+            </Link>
             {isLoggedIn && (
               <div className="text-gray-700 font-medium mr-4">
                 مرحباً، {user?.username}
@@ -115,24 +115,24 @@ function Navbar() {
                     {activeDropdown === index && (
                       <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-2 z-50 transform opacity-100 scale-100 transition-all duration-200">
                         {item.dropdownItems.map((dropdownItem) => (
-                          <a
+                          <Link
                             key={dropdownItem.name}
-                            href={dropdownItem.path}
+                            to={dropdownItem.path}
                             className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#780C28] transition-all duration-200"
                           >
                             {dropdownItem.name}
-                          </a>
+                          </Link>
                         ))}
                       </div>
                     )}
                   </div>
                 ) : (
-                  <a
-                    href={item.path}
+                  <Link
+                    to={item.path}
                     className="text-gray-700 hover:text-[#780C28] transition-all duration-300 text-base font-medium py-2 px-1 relative after:content-[''] after:absolute after:w-0 after:h-0.5 after:bg-[#780C28] after:right-0 after:bottom-0 hover:after:w-full after:transition-all after:duration-300"
                   >
                     {item.name}
-                  </a>
+                  </Link>
                 )}
               </div>
             ))}
@@ -148,12 +148,12 @@ function Navbar() {
                 تسجيل الخروج
               </button>
             ) : (
-              <a
-                href="/login"
+              <Link
+                to="/login"
                 className="text-gray-700 hover:text-[#780C28] transition-all duration-300 font-medium hover:scale-105"
               >
                 تسجيل الدخول
-              </a>
+              </Link>
             )}
           </div>
 
@@ -202,23 +202,23 @@ function Navbar() {
                     }`}
                   >
                     {item.dropdownItems.map((dropdownItem) => (
-                      <a
+                      <Link
                         key={dropdownItem.name}
-                        href={dropdownItem.path}
+                        to={dropdownItem.path}
                         className="block px-4 py-2 text-gray-600 hover:text-[#780C28] hover:bg-gray-50 rounded-md transition-all duration-300"
                       >
                         {dropdownItem.name}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </>
               ) : (
-                <a
-                  href={item.path}
+                <Link
+                  to={item.path}
                   className="block px-4 py-3 text-gray-700 hover:text-[#780C28] hover:bg-gray-50 rounded-lg font-medium transition-all duration-300"
                 >
                   {item.name}
-                </a>
+                </Link>
               )}
             </div>
           ))}
@@ -237,16 +237,16 @@ function Navbar() {
               </div>
             ) : (
               <div className="space-y-2">
-                <a
-                  href="/login"
+                <Link
+                  to="/login"
                   className="block text-right text-gray-700 hover:text-[#780C28] px-4 py-2 transition-all duration-300 font-medium"
                 >
                   تسجيل الدخول
-                </a>
+                </Link>
               </div>
             )}
-            <a
-              href="/join-us"
+            <Link
+              to="/join-us"
               onClick={handleJoinUsClick}
               className={`block w-full text-center px-6 py-3 rounded-lg transition-all duration-300 font-medium mt-4 ${
                 isLoggedIn 
@@ -255,7 +255,7 @@ function Navbar() {
               }`}
             >
               سجل معنا
-            </a>
+            </Link>
           </div>
         </div>
       </div>
