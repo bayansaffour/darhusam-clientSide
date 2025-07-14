@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-
+  import { apiBaseUrl } from "../../utils/api";
 const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -14,7 +14,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   // استخدام متغير البيئة الصحيح
-  const apiBaseUrl = import.meta.env.VITE_BACKEND_URL;
 
   const handleChange = (e) => {
     setFormData({

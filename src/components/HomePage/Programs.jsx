@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+  import { apiBaseUrl } from "../../utils/api"
 
 export default function ProgramsSlider() {
   const [programs, setPrograms] = useState([]);
@@ -9,7 +10,6 @@ export default function ProgramsSlider() {
   const slidesPerView = isMobile ? 1 : 3;
   const navigate = useNavigate();
 
-  const apiBaseUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchPrograms = async () => {

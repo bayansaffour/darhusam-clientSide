@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-
+import { apiBaseUrl } from "../../src/utils/api";
 const BookingForm = ({ hall, selectedDate, bookedTimes, onBookingSuccess }) => {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -12,7 +12,6 @@ const BookingForm = ({ hall, selectedDate, bookedTimes, onBookingSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const backendURL = import.meta.env.VITE_BACKEND_URL;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,7 +24,7 @@ const BookingForm = ({ hall, selectedDate, bookedTimes, onBookingSuccess }) => {
     setLoading(true);
 
     try {
-      await axios.post(`${backendURL}/api/bookings`, {
+      await axios.post(`${apiBaseUrl}/api/bookings`, {
         ...formData,
         hallId: hall.id,
         date: selectedDate,

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { UserCircle, Mail, Phone, MapPin, AlertCircle } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-
+  import { apiBaseUrl } from "../../utils/api"
 const VolunteerForm = () => {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -93,7 +93,7 @@ const VolunteerForm = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/volunteer/submit`, formData);
+      const response = await axios.post(`${apiBaseUrl}/api/volunteer/submit`, formData);
 
       if (response.status === 201) {
         toast.success('تم التسجيل بنجاح');

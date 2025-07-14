@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+  import { apiBaseUrl } from "../../utils/api"
 import {
   ChevronRight,
   ChevronLeft,
@@ -15,7 +16,7 @@ import Swal from "sweetalert2";
 import axios from "axios";
 
 // تعديل رابط الـ API ليكون متغير بيئي
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const apiBaseUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function News() {
   const [activeSection, setActiveSection] = useState("articles");
@@ -37,9 +38,9 @@ export default function News() {
     const fetchAllData = async () => {
       try {
         const [articlesRes, eventsRes, mediaRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/news/articles`),
-          axios.get(`${API_BASE_URL}/news/events`),
-          axios.get(`${API_BASE_URL}/news/media`),
+          axios.get(`${apiBaseUrl}/news/articles`),
+          axios.get(`${apiBaseUrl}/news/events`),
+          axios.get(`${apiBaseUrl}/news/media`),
         ]);
 
         setArticles(articlesRes.data);
@@ -90,7 +91,7 @@ export default function News() {
     if (result.isConfirmed) {
       try {
         const updatedEvent = await axios.put(
-          `${API_BASE_URL}/news/events/${event._id}`,
+          `${apiBaseUrl}/news/events/${event._id}`,
           { registered: event.registered + 1 }
         );
 

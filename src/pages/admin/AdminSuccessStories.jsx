@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { apiBaseUrl } from "../../utils/api";
 import { Switch } from "@headlessui/react";
 import {
   Trash2,
@@ -12,7 +13,6 @@ import {
 } from "lucide-react";
 
 const AdminSuccessStories = () => {
-  const backendURL = import.meta.env.VITE_BACKEND_URL;
 
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,7 +36,7 @@ const AdminSuccessStories = () => {
   const fetchStories = async () => {
     try {
       const token = localStorage.getItem("adminToken");
-      const response = await axios.get(`${backendURL}/api/success`, {
+      const response = await axios.get(`${apiBaseUrl}/api/success`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStories(response.data);
@@ -51,7 +51,7 @@ const AdminSuccessStories = () => {
     try {
       const token = localStorage.getItem("adminToken");
       await axios.patch(
-        `${backendURL}/api/success/${id}/restore`,
+        `${apiBaseUrl}/api/success/${id}/restore`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -80,7 +80,7 @@ const AdminSuccessStories = () => {
     formData.append("image", file);
     try {
       const token = localStorage.getItem("adminToken");
-      const response = await axios.post(`${backendURL}/api/upload`, formData, {
+      const response = await axios.post(`${apiBaseUrl}/api/upload`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
@@ -110,12 +110,12 @@ const AdminSuccessStories = () => {
 
       if (editingStory) {
         await axios.put(
-          `${backendURL}/api/success/${editingStory._id}`,
+          `${apiBaseUrl}/api/success/${editingStory._id}`,
           storyData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
       } else {
-        await axios.post(`${backendURL}/api/success`, storyData, {
+        await axios.post(`${apiBaseUrl}/api/success`, storyData, {
           headers: { Authorization: `Bearer ${token}` },
         });
       }
@@ -146,7 +146,7 @@ const AdminSuccessStories = () => {
     try {
       const token = localStorage.getItem("adminToken");
       await axios.patch(
-        `${backendURL}/api/success/${id}/soft-delete`,
+        `${apiBaseUrl}/api/success/${id}/soft-delete`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -159,7 +159,7 @@ const AdminSuccessStories = () => {
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem("adminToken");
-      await axios.delete(`${backendURL}/api/success/${id}`, {
+      await axios.delete(`${apiBaseUrl}/api/success/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchStories();

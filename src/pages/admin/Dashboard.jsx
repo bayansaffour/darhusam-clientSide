@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiBaseUrl } from "../../utils/api";
 import axios from "axios";
 import {
   Users,
@@ -35,7 +36,6 @@ import AdminPrograms from "./AdminPrograms";
 import AdminBookings from "./AdminBookings";
 
 const Dashboard = () => {
-    const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -65,7 +65,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (activeTab === "resources") {
       axios
-        .get(`${import.meta.env.VITE_BACKEND_URL}/api/resources`)
+        .get(`${apiBaseUrl}/api/resources`)
         .then((res) => setResources(res.data.data))
         .catch(() => setResources([]));
     }
@@ -80,7 +80,7 @@ const Dashboard = () => {
       }
 
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/admin/dashboard`,
+        `${apiBaseUrl}/api/admin/dashboard`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -156,7 +156,7 @@ const Dashboard = () => {
       }
 
       const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/resources`,
+        `${apiBaseUrl}/api/resources`,
         formData,
         {
           headers: {
@@ -183,7 +183,7 @@ const Dashboard = () => {
           externalUrl: "",
         });
         setShowAddResourceModal(false);
-        const resourcesResponse = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/resources`);
+        const resourcesResponse = await axios.get(`${apiBaseUrl}/api/resources`);
         setResources(resourcesResponse.data.data || []);
       }
     } catch (error) {
@@ -213,7 +213,7 @@ const Dashboard = () => {
 
       if (result.isConfirmed) {
         const response = await axios.delete(
-          `${import.meta.env.VITE_BACKEND_URL}/api/resources/${resourceId}`,
+          `${apiBaseUrl}/api/resources/${resourceId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -229,7 +229,7 @@ const Dashboard = () => {
             confirmButtonColor: "#780C28",
           });
           axios
-            .get(`${import.meta.env.VITE_BACKEND_URL}/api/resources`)
+            .get(`${apiBaseUrl}/api/resources`)
             .then((res) => setResources(res.data.data))
             .catch(() => setResources([]));
         }
@@ -260,7 +260,7 @@ const Dashboard = () => {
       }
 
       const response = await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/api/contact/${contactId}`,
+        `${apiBaseUrl}/api/contact/${contactId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -715,7 +715,7 @@ const Dashboard = () => {
 //هنااااا
                                       if (result.isConfirmed) {
   const response = await axios.delete(
-    `${import.meta.env.VITE_BACKEND_URL}/api/volunteer/${volunteer._id}`,
+    `${apiBaseUrl}/api/volunteer/${volunteer._id}`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -923,7 +923,7 @@ const Dashboard = () => {
 
                                         if (result.isConfirmed) {
                                       const response = await axios.delete(
-  `${import.meta.env.VITE_BACKEND_URL}/api/trainer/${trainer._id}`,
+  `${apiBaseUrl}/api/trainer/${trainer._id}`,
   {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -1139,7 +1139,7 @@ const Dashboard = () => {
 
                                     if (result.isConfirmed) {
   const response = await axios.delete(
-    `${import.meta.env.VITE_BACKEND_URL}/api/trainee/${trainee._id}`,
+    `${apiBaseUrl}/api/trainee/${trainee._id}`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -1347,7 +1347,7 @@ const Dashboard = () => {
 
                                      if (result.isConfirmed) {
   const response = await axios.delete(
-    `${import.meta.env.VITE_BACKEND_URL}/api/volunteer/${volunteer._id}`,
+    `${apiBaseUrl}/api/volunteer/${volunteer._id}`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -1538,7 +1538,7 @@ const Dashboard = () => {
 
                                      if (result.isConfirmed) {
   const response = await axios.delete(
-    `${import.meta.env.VITE_BACKEND_URL}/api/individual-partner/${partner._id}`,
+    `${apiBaseUrl}/api/individual-partner/${partner._id}`,
     {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
@@ -1637,7 +1637,7 @@ const Dashboard = () => {
   src={
     resource.images[0].startsWith('http')
       ? resource.images[0]
-      : `${import.meta.env.VITE_BACKEND_URL}${resource.images[0]}`
+      : `${apiBaseUrl}${resource.images[0]}`
   }
   alt={resource.title}
   className="w-full h-full object-cover"

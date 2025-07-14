@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-
+  import { apiBaseUrl } from "../../utils/api"
 export default function NewsTicker() {
   const [headlines, setHeadlines] = useState([]);
   const containerRef = useRef(null);
 
-  const apiBaseUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     async function fetchNews() {

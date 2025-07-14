@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-
+  import { apiBaseUrl } from "../../src/utils/api"
 const SuccessStories = () => {
   const [stories, setStories] = useState([]);
   const [activeStory, setActiveStory] = useState(null);
@@ -22,7 +22,6 @@ const SuccessStories = () => {
   };
 
   // **التعديل هنا: استخدام VITE_BACKEND_URL من ملف البيئة**
-  const apiBaseUrl = import.meta.env.VITE_BACKEND_URL;
 
   const dummyStories = [
     {

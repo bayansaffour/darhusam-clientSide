@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-
+  import { apiBaseUrl } from "../../utils/api"
 const TraineeForm = () => {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -136,7 +136,7 @@ const TraineeForm = () => {
     setLoading(true);
 
     try {
-      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/trainee/submit`, formData);
+      await axios.post(`${apiBaseUrl}/api/trainee/submit`, formData);
       toast.success("تم تسجيل طلب التدريب بنجاح! سيتم التواصل معك قريباً.");
       setFormData({
         fullName: "",

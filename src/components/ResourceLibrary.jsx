@@ -24,7 +24,6 @@ const ResourceLibrary = () => {
   ];
 
   // استخدام متغير البيئة VITE_BACKEND_URL فقط
-  const API_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchResources = async () => {

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+  import { apiBaseUrl } from "../../src/utils/api"
 
 const BookingForm = ({ hall, bookedTimes, selectedDate, onBookingSuccess }) => {
   const [formData, setFormData] = useState({
@@ -12,7 +13,6 @@ const BookingForm = ({ hall, bookedTimes, selectedDate, onBookingSuccess }) => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,7 +28,7 @@ const BookingForm = ({ hall, bookedTimes, selectedDate, onBookingSuccess }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/bookings`, {
+      const response = await fetch(`${apiBaseUrl}/api/bookings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

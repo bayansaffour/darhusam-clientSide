@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-
+  import { apiBaseUrl } from "../../utils/api"
 const Register = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -16,7 +16,6 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
 
   // قاعدة API من متغير البيئة (Vite)
-  const apiBaseUrl = import.meta.env.VITE_BACKEND_URL;
 
   const handleChange = (e) => {
     setFormData({

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-
+  import { apiBaseUrl } from "../../utils/api"
 const PartnerForm = () => {
   const [formData, setFormData] = useState({
     organizationName: "",
@@ -197,8 +197,7 @@ const PartnerForm = () => {
     setLoading(true);
 
     try {
-      const baseURL = import.meta.env.VITE_BACKEND_URL;
-      const response = await axios.post(`${baseURL}/api/partner/submit`, {
+      const response = await axios.post(`${apiBaseUrl}/api/partner/submit`, {
         ...formData,
         organizationName: formData.organizationName.trim(),
         organizationLocation: formData.organizationLocation.trim(),

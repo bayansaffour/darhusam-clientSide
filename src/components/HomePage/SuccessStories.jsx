@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Star, ArrowRight, Heart, Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+  import { apiBaseUrl } from "../../utils/api"
 export default function SuccessStoriesCards() {
   const [stories, setStories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const apiBaseUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchStories = async () => {

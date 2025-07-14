@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
+import { apiBaseUrl } from "../../utils/api"
 const Setup = () => {
   const [formData, setFormData] = useState({
     username: '',
@@ -12,7 +12,6 @@ const Setup = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const backendURL = import.meta.env.VITE_BACKEND_URL;
 
   const handleChange = (e) => {
     setFormData({
@@ -34,7 +33,7 @@ const Setup = () => {
 
     try {
       await axios.post(
-        `${backendURL}/api/admin/setup`,
+        `${apiBaseUrl}/api/admin/setup`,
         {
           username: formData.username,
           password: formData.password

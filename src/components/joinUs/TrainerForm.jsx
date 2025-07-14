@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-
+  import { apiBaseUrl } from "../../utils/api"
 const TrainerForm = () => {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -132,7 +132,7 @@ const TrainerForm = () => {
     setLoading(true);
 
     try {
-      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/trainer/submit`, formData);
+      await axios.post(`${apiBaseUrl}/api/trainer/submit`, formData);
       toast.success("تم تسجيل طلب التدريب بنجاح! سيتم التواصل معك قريباً.");
       setFormData({
         fullName: "",

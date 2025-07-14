@@ -2,6 +2,7 @@
 
 
 import React, { useState, useEffect } from "react";
+import { apiBaseUrl } from "../../src/utils/api"
 
 const TrainingPrograms = () => {
     const [category, setCategory] = useState("");
@@ -12,7 +13,6 @@ const TrainingPrograms = () => {
     const [selectedProgramId, setSelectedProgramId] = useState(null);
     const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
 
-    const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
     useEffect(() => {
         fetchPrograms();
@@ -20,7 +20,7 @@ const TrainingPrograms = () => {
 
     const fetchPrograms = async () => {
         try {
-            const url = new URL(`${API_BASE_URL}/api/programs/`);
+            const url = new URL(`${apiBaseUrl}/api/programs/`);
             if (category) url.searchParams.append("category", category);
             if (search) url.searchParams.append("search", search);
 
@@ -43,7 +43,7 @@ const TrainingPrograms = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${API_BASE_URL}/api/register/`, {
+            const response = await fetch(`${apiBaseUrl}/api/register/`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ ...formData, programId: selectedProgramId }),

@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FileText, Calendar, Image } from "lucide-react";
 import axios from "axios";
 import Swal from "sweetalert2";
-
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+  import { apiBaseUrl } from "../../utils/api"
 
 const AdminForms = () => {
   const [activeTab, setActiveTab] = useState("articles");
@@ -94,7 +93,7 @@ const AdminForms = () => {
         formData.append("image", articleForm.image);
       }
 
-      await axios.post(`${API_BASE_URL}/api/news/articles`, formData, {
+      await axios.post(`${apiBaseUrl}/api/news/articles`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         timeout: 30000,
       });
@@ -154,7 +153,7 @@ const AdminForms = () => {
         formData.append("image", eventForm.image);
       }
 
-      await axios.post(`${API_BASE_URL}/api/news/events`, formData, {
+      await axios.post(`${apiBaseUrl}/api/news/events`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         timeout: 30000,
       });
@@ -208,7 +207,7 @@ const AdminForms = () => {
       formData.append("type", mediaForm.type);
       formData.append("media", mediaForm.file);
 
-      const response = await axios.post(`${API_BASE_URL}/api/news/media`, formData, {
+      const response = await axios.post(`${apiBaseUrl}/api/news/media`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
         timeout: 30000,
         validateStatus: function (status) {

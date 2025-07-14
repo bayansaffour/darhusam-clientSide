@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-
+  import { apiBaseUrl } from "../../utils/api"
 const IndividualPartnerForm = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const baseURL = import.meta.env.VITE_BACKEND_URL;
 
   const [formData, setFormData] = useState({
     fullName: '',

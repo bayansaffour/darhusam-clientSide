@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Search, CalendarDays, Trash2, X, Clock, Mail, Phone } from "lucide-react";
 import Swal from "sweetalert2";
+  import { apiBaseUrl } from "../../utils/api"; 
 
 const AdminBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -14,7 +15,7 @@ const AdminBookings = () => {
     search: "",
   });
 
-  const backendURL = import.meta.env.VITE_BACKEND_URL;
+
 
   const fetchData = async () => {
     setLoading(true);
@@ -28,7 +29,7 @@ const AdminBookings = () => {
       if (filters.search) params.append("search", filters.search);
 
       const response = await axios.get(
-        `${backendURL}/api/bookings?${params.toString()}`,
+        `${apiBaseUrl}/api/bookings?${params.toString()}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setBookings(response.data);
@@ -44,7 +45,7 @@ const AdminBookings = () => {
     try {
       const token = localStorage.getItem("adminToken");
       const response = await axios.get(
-        `${backendURL}/api/bookings/unique-halls`,
+        `${apiBaseUrl}/api/bookings/unique-halls`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setHalls(response.data);
@@ -78,7 +79,7 @@ const AdminBookings = () => {
 
       if (result.isConfirmed) {
         const token = localStorage.getItem("adminToken");
-        await axios.delete(`${backendURL}/api/bookings/${id}`, {
+        await axios.delete(`${apiBaseUrl}/api/bookings/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

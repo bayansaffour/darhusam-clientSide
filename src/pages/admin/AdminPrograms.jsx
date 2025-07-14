@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Calendar } from "lucide-react";
+import { apiBaseUrl } from "../../utils/api";
+
 
 const AdminPrograms = () => {
   const [programs, setPrograms] = useState([]);
@@ -17,7 +19,6 @@ const AdminPrograms = () => {
     endDate: "",
   });
 
-  const backendURL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     fetchData();
@@ -29,10 +30,10 @@ const AdminPrograms = () => {
     try {
       const token = localStorage.getItem("adminToken");
       const [programsRes, categoriesRes] = await Promise.all([
-        axios.get(`${backendURL}/api/programs?includeDeleted=true`, {
+        axios.get(`${apiBaseUrl}/api/programs?includeDeleted=true`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        axios.get(`${backendURL}/api/programs/categories`, {
+        axios.get(`${apiBaseUrl}/api/programs/categories`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -62,12 +63,12 @@ const AdminPrograms = () => {
       const token = localStorage.getItem("adminToken");
       if (editingProgram) {
         await axios.put(
-          `${backendURL}/api/programs/${editingProgram._id}`,
+          `${apiBaseUrl}/api/programs/${editingProgram._id}`,
           formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
       } else {
-        await axios.post(`${backendURL}/api/programs`, formData, {
+        await axios.post(`${apiBaseUrl}/api/programs`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
       }
@@ -104,7 +105,7 @@ const AdminPrograms = () => {
     try {
       const token = localStorage.getItem("adminToken");
       await axios.patch(
-        `${backendURL}/api/programs/${id}/soft-delete`,
+        `${apiBaseUrl}/api/programs/${id}/soft-delete`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -119,7 +120,7 @@ const AdminPrograms = () => {
     try {
       const token = localStorage.getItem("adminToken");
       await axios.patch(
-        `${backendURL}/api/programs/${id}/restore`,
+        `${apiBaseUrl}/api/programs/${id}/restore`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -135,7 +136,7 @@ const AdminPrograms = () => {
       if (!window.confirm("هل أنت متأكد من الحذف النهائي لهذا البرنامج؟")) return;
 
       const token = localStorage.getItem("adminToken");
-      await axios.delete(`${backendURL}/api/programs/${id}`, {
+      await axios.delete(`${apiBaseUrl}/api/programs/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchData();

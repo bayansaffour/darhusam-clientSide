@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import axios from 'axios';
-
+import { apiBaseUrl } from "../../src/utils/api"
 const ContactUs = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -15,7 +15,6 @@ const ContactUs = () => {
   const [error, setError] = useState('');
 
   // استخدام متغير البيئة الخاص بـ Vite
-  const backendURL = import.meta.env.VITE_BACKEND_URL;
 
   const handleChange = (e) => {
     setFormData(prev => ({
@@ -32,7 +31,7 @@ const ContactUs = () => {
 
     try {
       await axios.post(
-        `${backendURL}/api/contact/submit`,
+        `${apiBaseUrl}/api/contact/submit`,
         formData
       );
       setSubmitSuccess(true);

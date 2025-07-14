@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Calendar, MapPin, Clock, Users } from 'lucide-react';
-
+  import { apiBaseUrl } from "../../utils/api"
 export default function EnhancedNews() {
   const [events, setEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -10,7 +10,6 @@ export default function EnhancedNews() {
   const navigate = useNavigate();
 
   // رابط السيرفر من env
-  const apiBaseUrl = import.meta.env.VITE_BACKEND_URL;
 
   // Fetch events
   useEffect(() => {
