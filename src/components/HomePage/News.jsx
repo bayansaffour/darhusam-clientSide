@@ -2,16 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Calendar, MapPin, Clock, Users } from 'lucide-react';
-  import { apiBaseUrl } from "../../utils/api"
+import { apiBaseUrl } from "../../utils/api";  // استيراد apiBaseUrl
+
 export default function EnhancedNews() {
   const [events, setEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [cardsToShow, setCardsToShow] = useState(3);
   const navigate = useNavigate();
 
-  // رابط السيرفر من env
-
-  // Fetch events
   useEffect(() => {
     const fetchEvents = async () => {
       try {

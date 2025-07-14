@@ -16,7 +16,6 @@ import Swal from "sweetalert2";
 import axios from "axios";
 
 // تعديل رابط الـ API ليكون متغير بيئي
-const apiBaseUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function News() {
   const [activeSection, setActiveSection] = useState("articles");
