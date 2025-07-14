@@ -57,7 +57,7 @@ const Register = () => {
       <div className="hidden md:flex md:w-1/2 bg-[#780C28]">
         <div className="w-full h-full flex items-center justify-center p-12">
           <img
-            src="/public/daaralhosam.jpg"
+            src="/daaralhosam.jpg"
             alt="Logo"
             className="max-w-md w-full object-contain"
           />
@@ -70,7 +70,7 @@ const Register = () => {
           {/* Logo for mobile */}
           <div className="md:hidden flex justify-center mb-8">
             <img
-              src="/public/daaralhosam.jpg"
+              src="/daaralhosam.jpg"
               alt="Logo"
               className="h-24 object-contain"
             />
