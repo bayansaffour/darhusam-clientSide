@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Search, BookOpen, Video, FileText, File, Download, ExternalLink, Filter, X } from 'lucide-react';
+import { apiBaseUrl } from "../utils/api"
 
 const ResourceLibrary = () => {
   const [resources, setResources] = useState([]);
@@ -29,7 +30,7 @@ const ResourceLibrary = () => {
     const fetchResources = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(`${API_URL}/api/resources`);
+        const response = await axios.get(`${apiBaseUrl}/api/resources`);
         setResources(response.data.data || []);
         setFilteredResources(response.data.data || []);
         setIsLoading(false);
@@ -41,7 +42,7 @@ const ResourceLibrary = () => {
     };
 
     fetchResources();
-  }, [API_URL]);
+  }, [apiBaseUrl]);
 
   useEffect(() => {
     const filtered = resources.filter(resource => {
@@ -89,7 +90,7 @@ const ResourceLibrary = () => {
       if (resource.images && resource.images.length > 0) {
         const imageUrl = resource.images[0]?.startsWith('http')
           ? resource.images[0]
-          : `${API_URL}${resource.images[0]}`;
+          : `${apiBaseUrl}${resource.images[0]}`;
 
         const response = await fetch(imageUrl);
         const blob = await response.blob();
@@ -125,7 +126,7 @@ const ResourceLibrary = () => {
           return;
         }
 
-        const response = await axios.get(`${API_URL}/api/resources/${resource._id}/download`, {
+        const response = await axios.get(`${apiBaseUrl}/api/resources/${resource._id}/download`, {
           responseType: 'blob',
         });
 
