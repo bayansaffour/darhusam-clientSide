@@ -82,38 +82,27 @@ const ResourceLibrary = () => {
   };
 
   const handleDownload = async (resource) => {
-  try {
-    setIsDownloading(true);
+    try {
+      setIsDownloading(true);
 
-    let imageUrl = "/default.jpg"; // صورة بديلة في حال عدم توفر صورة
+      // تحميل الصورة مباشرة
+      if (resource.images && resource.images.length > 0) {
+        const imageUrl = resource.images[0]?.startsWith('http')
+          ? resource.images[0]
+          : `${API_URL}${resource.images[0]}`;
 
-    if (
-      resource.images &&
-      Array.isArray(resource.images) &&
-      resource.images.length > 0 &&
-      typeof resource.images[0] === "string"
-    ) {
-      imageUrl = resource.images[0].startsWith("http")
-        ? resource.images[0]
-        : `${API_URL}${resource.images[0]}`;
-    }
-
-    const response = await fetch(imageUrl);
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", `${resource.title || "file"}.jpg`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error("❌ فشل تحميل الصورة:", error);
-  } finally {
-    setIsDownloading(false);
-  }
-};
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `${resource.title}.jpg`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        return;
+      }
 
       // تحميل ملف أو رابط خارجي
       if (resource.fileUrl || resource.externalUrl) {
