@@ -58,7 +58,6 @@ dc850c4c5ea27f9ae914ddb2529622f4fbdb99ac src/components/HomePage/Hero.jsx
 2a112d8d81d347693668dd7468f93b4f63c05a9c src/components/HomePage/Home.jsx
 941179c886e64599ff92f939b41b39fb86b8bcac src/components/HomePage/Initiatives.jsx
 5e63ab2e46a1dac3dbd4cb4b56f97a522b6e8cfe src/components/HomePage/News.jsx
-5d8036b426f7d0da0372e2a113ae39e80a472c57 src/components/HomePage/NewsTicker.jsx
 b51937973f1b5d5a85028d62badac81d687db7ea src/components/HomePage/Programs.jsx
 992d487129433cc814cf880afe20bd48787dc787 src/components/HomePage/SuccessStories.jsx
 b0f078b233e797cbb59889bb54850e978c9ada3d src/components/HomePage/WhoWeAre.jsx
