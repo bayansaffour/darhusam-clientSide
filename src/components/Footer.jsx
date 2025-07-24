@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react';
-import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { motion } from 'framer-motion';                 
